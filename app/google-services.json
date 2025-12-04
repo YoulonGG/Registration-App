@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "110672688342",
+    "project_id": "registration-app-4adb4",
+    "storage_bucket": "registration-app-4adb4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110672688342:android:8a0c91161b89ba75e18577",
+        "android_client_info": {
+          "package_name": "com.example.registration_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAc5beT3MlBknw0dMZnpxNjam4q60RkC0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
