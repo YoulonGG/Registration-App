@@ -11,8 +11,10 @@ import com.example.registration_app.presentation.home.HomeScreen
 import com.example.registration_app.presentation.login.LoginScreen
 import com.example.registration_app.presentation.resetpassword.ResetPasswordScreen
 import com.example.registration_app.presentation.signup.SignUpScreen
+import com.example.registration_app.presentation.splash.SplashScreen
 
 sealed class Screen(val route: String) {
+    object Splash : Screen("splash")
     object Login : Screen("login")
     object SignUp : Screen("signup")
     object Home : Screen("home")
@@ -25,12 +27,27 @@ sealed class Screen(val route: String) {
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    startDestination: String = Screen.Login.route
+    startDestination: String = Screen.Splash.route
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
+        composable(Screen.Splash.route) {
+            SplashScreen(
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(Screen.Login.route) {
             LoginScreen(
                 onNavigateToSignUp = {

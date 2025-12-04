@@ -16,6 +16,7 @@ import com.example.registration_app.presentation.navigation.Screen
 import com.example.registration_app.ui.theme.RegistrationAppTheme
 import com.example.registration_app.util.DeepLinkHelper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -32,18 +33,24 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     
                     // Handle deep link for password reset
+                    // Wait for splash screen to complete before navigating
                     LaunchedEffect(Unit) {
                         val resetCode = DeepLinkHelper.extractResetCode(intent)
                         resetCode?.let { code ->
+                            // Wait for splash screen to complete navigation (2 seconds + buffer)
+                            delay(2500)
+                            // Navigate to reset password screen
+                            // This will work regardless of current navigation state
                             navController.navigate(Screen.ResetPassword.createRoute(code)) {
-                                popUpTo(Screen.Login.route) { inclusive = false }
+                                // Clear back stack up to and including the start destination
+                                popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             }
                         }
                     }
                     
                     NavGraph(
                         navController = navController,
-                        startDestination = Screen.Login.route
+                        startDestination = Screen.Splash.route
                     )
                 }
             }
