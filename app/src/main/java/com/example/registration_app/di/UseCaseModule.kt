@@ -1,6 +1,7 @@
 package com.example.registration_app.di
 
 import com.example.registration_app.domain.repository.AuthRepository
+import com.example.registration_app.domain.repository.StudentRegistrationRepository
 import com.example.registration_app.domain.usecase.*
 import dagger.Module
 import dagger.Provides
@@ -69,5 +70,13 @@ object UseCaseModule {
     @Singleton
     fun provideChangePasswordUseCase(authRepository: AuthRepository): ChangePasswordUseCase {
         return ChangePasswordUseCase(authRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRegisterStudentUseCase(
+        studentRegistrationRepository: StudentRegistrationRepository
+    ): RegisterStudentUseCase {
+        return RegisterStudentUseCase(studentRegistrationRepository)
     }
 }

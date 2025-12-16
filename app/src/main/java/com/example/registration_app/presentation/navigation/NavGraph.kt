@@ -18,6 +18,8 @@ import com.example.registration_app.presentation.login.LoginScreen
 import com.example.registration_app.presentation.resetpassword.ResetPasswordScreen
 import com.example.registration_app.presentation.signup.SignUpScreen
 import com.example.registration_app.presentation.splash.SplashScreen
+import com.example.registration_app.presentation.studentregistration.MajorRegistrationScreen
+import com.example.registration_app.presentation.studentregistration.StudentRegistrationRoute
 import com.example.registration_app.util.PreferencesManager
 
 sealed class Screen(val route: String) {
@@ -28,6 +30,10 @@ sealed class Screen(val route: String) {
     object ForgotPassword : Screen("forgot_password")
     object ResetPassword : Screen("reset_password") {
         fun createRoute(resetCode: String) = "reset_password/$resetCode"
+    }
+    object StudentRegistration : Screen("student_registration")
+    object MajorRegistration : Screen("major_registration") {
+        fun createRoute(majorName: String) = "major_registration/$majorName"
     }
 }
 
@@ -97,6 +103,29 @@ fun NavGraph(
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
+                },
+                onNavigateToStudentRegistration = {
+                    navController.navigate(Screen.StudentRegistration.route)
+                }
+            )
+        }
+
+        composable(Screen.StudentRegistration.route) {
+            StudentRegistrationRoute(navController = navController)
+        }
+
+        composable(
+            route = "major_registration/{majorName}",
+            arguments = listOf(navArgument("majorName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val majorName = backStackEntry.arguments?.getString("majorName") ?: ""
+            MajorRegistrationScreen(
+                majorName = majorName,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onRegistrationSuccess = {
+                    navController.popBackStack()
                 }
             )
         }

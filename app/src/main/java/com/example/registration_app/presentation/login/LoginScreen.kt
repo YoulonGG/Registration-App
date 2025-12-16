@@ -270,26 +270,19 @@ fun LoginHeader() {
     }
 }
 
-// Custom Shape with rounded top-left corner
 class RoundedTopLeftShape(private val radius: androidx.compose.ui.unit.Dp) : Shape {
     override fun createOutline(size: Size, layoutDirection: androidx.compose.ui.unit.LayoutDirection, density: androidx.compose.ui.unit.Density): Outline {
         val radiusPx = with(density) { radius.toPx() }
         val path = Path().apply {
-            // Start from bottom left
             moveTo(0f, size.height)
-            // Left side - straight up to where the curve begins
             lineTo(0f, radiusPx)
-            // Top-left rounded corner - smooth arc using cubic bezier
             cubicTo(
                 x1 = 0f, y1 = radiusPx * 0.55f,  // Control point 1
                 x2 = radiusPx * 0.45f, y2 = 0f,  // Control point 2
                 x3 = radiusPx, y3 = 0f           // End point of curve
             )
-            // Top edge - straight line from rounded corner to right edge
             lineTo(size.width, 0f)
-            // Right side - straight line down
             lineTo(size.width, size.height)
-            // Bottom edge - straight line back to start
             lineTo(0f, size.height)
             close()
         }
@@ -319,7 +312,6 @@ fun CustomTextField(
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon on the left
             Icon(
                 imageVector = icon,
                 contentDescription = null,
@@ -328,8 +320,6 @@ fun CustomTextField(
             )
 
             Spacer(modifier = Modifier.width(12.dp))
-
-            // Text field
             CompositionLocalProvider(
                 LocalTextSelectionColors provides TextSelectionColors(
                     handleColor = Color.Black,
@@ -389,17 +379,13 @@ fun PasswordTextField(
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Lock icon on the left
             Icon(
                 imageVector = Icons.Default.Lock,
                 contentDescription = null,
                 tint = LoginDarkGray.copy(alpha = 0.7f),
                 modifier = Modifier.size(22.dp)
             )
-
             Spacer(modifier = Modifier.width(12.dp))
-
-            // Text field
             CompositionLocalProvider(
                 LocalTextSelectionColors provides TextSelectionColors(
                     handleColor = Color.Black,
@@ -434,9 +420,7 @@ fun PasswordTextField(
                     }
                 )
             }
-
             Spacer(modifier = Modifier.width(8.dp))
-
             Icon(
                 painter = painterResource(
                     id = if (passwordVisible) DrawableResources.VisibilityOff else DrawableResources.Visibility

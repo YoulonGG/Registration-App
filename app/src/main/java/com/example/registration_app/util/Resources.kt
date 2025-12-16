@@ -17,4 +17,12 @@ object DrawableResources {
     val home_study_program = R.drawable.home_study_program
     val home_nursery_class = R.drawable.home_nursery_class
     val home_research_task = R.drawable.home_research_task
+    val student_registration_banner = R.drawable.registration_banner
+    val computer_science_icon = R.drawable.conputer_science_icon
+    val fintech_icon = R.drawable.fintech_icon
+    val account_icon = R.drawable.account_icon
+    val data_science_icon = R.drawable.data_science_icon
+    val finance_icon = R.drawable.finance_icon
+    val business_it = R.drawable.business_it_icon
+    val registration_form_banner = R.drawable.registration_form_banner
 }

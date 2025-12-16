@@ -3,7 +3,9 @@ package com.example.registration_app.di
 import com.example.registration_app.data.datasource.FirebaseAuthDataSource
 import com.example.registration_app.data.datasource.FirestoreDataSource
 import com.example.registration_app.data.repository.AuthRepositoryImpl
+import com.example.registration_app.data.repository.StudentRegistrationRepositoryImpl
 import com.example.registration_app.domain.repository.AuthRepository
+import com.example.registration_app.domain.repository.StudentRegistrationRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -40,4 +42,10 @@ object AppModule {
     fun provideAuthRepository(
         authRepositoryImpl: AuthRepositoryImpl
     ): AuthRepository = authRepositoryImpl
+
+    @Provides
+    @Singleton
+    fun provideStudentRegistrationRepository(
+        studentRegistrationRepositoryImpl: StudentRegistrationRepositoryImpl
+    ): StudentRegistrationRepository = studentRegistrationRepositoryImpl
 }

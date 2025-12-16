@@ -42,6 +42,7 @@ data class HomeMenuItem(
 @Composable
 fun HomeScreen(
     onSignOut: () -> Unit,
+    onNavigateToStudentRegistration: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -117,7 +118,7 @@ fun HomeScreen(
                 borderColor = HomeCardBorder.copy(alpha = 0.5f),
                 imagePainter = painterResource(DrawableResources.home_profile),
                 text = "Student Registration",
-                onClick = { /* TODO: Navigate to Student Registration screen */ }
+                onClick = onNavigateToStudentRegistration
             )
             Row(
                 modifier = Modifier

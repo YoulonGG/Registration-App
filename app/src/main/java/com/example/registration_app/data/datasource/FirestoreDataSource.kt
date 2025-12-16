@@ -1,6 +1,7 @@
 package com.example.registration_app.data.datasource
 
 import com.example.registration_app.domain.model.AuthResult
+import com.example.registration_app.domain.model.StudentRegistration
 import com.example.registration_app.domain.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -11,6 +12,7 @@ class FirestoreDataSource @Inject constructor(
 ) {
     companion object {
         private const val USERS_COLLECTION = "users"
+        private const val STUDENT_REGISTRATIONS_COLLECTION = "student_registrations"
     }
 
     suspend fun saveUserProfile(user: User): AuthResult<Unit> {
@@ -51,6 +53,33 @@ class FirestoreDataSource @Inject constructor(
             }
         } catch (e: Exception) {
             AuthResult.Error(e.message ?: "Failed to get user profile")
+        }
+    }
+
+    suspend fun saveStudentRegistration(registration: StudentRegistration): AuthResult<Unit> {
+        return try {
+            val registrationMap = hashMapOf(
+                "studentName" to registration.studentName,
+                "email" to registration.email,
+                "gender" to registration.gender,
+                "phoneNumber" to registration.phoneNumber,
+                "address" to registration.address,
+                "dateOfBirthDay" to registration.dateOfBirthDay,
+                "dateOfBirthMonth" to registration.dateOfBirthMonth,
+                "dateOfBirthYear" to registration.dateOfBirthYear,
+                "course" to registration.course,
+                "major" to registration.major,
+                "userId" to (registration.userId ?: ""),
+                "registrationDate" to registration.registrationDate
+            )
+            
+            firestore.collection(STUDENT_REGISTRATIONS_COLLECTION)
+                .add(registrationMap)
+                .await()
+            
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            AuthResult.Error(e.message ?: "Failed to save student registration")
         }
     }
 }
