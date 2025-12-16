@@ -10,18 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -32,6 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.registration_app.presentation.home.components.HomeContentCard
+import com.example.registration_app.presentation.home.components.HomeHeader
+import com.example.registration_app.presentation.home.components.HomeHorizontalContentCard
+import com.example.registration_app.ui.theme.HomeCardBorder
 import com.example.registration_app.ui.theme.HomeTextDark
 import com.example.registration_app.ui.theme.LoginWhite
 import com.example.registration_app.util.DrawableResources
@@ -58,10 +55,8 @@ fun HomeScreen(
             .fillMaxSize()
             .background(LoginWhite)
     ) {
-        // Header with logo and university name
         HomeHeader()
 
-        // Banner Image
         Image(
             painter = painterResource(id = DrawableResources.HomeBanner),
             contentDescription = "University Banner",
@@ -71,7 +66,6 @@ fun HomeScreen(
             contentScale = ContentScale.Crop
         )
 
-        // Khmer Text Section
         Text(
             text = "ចង់ចេះត្រូវខំរៀន ចង់មានត្រូវខំរក",
             fontSize = 17.sp,
@@ -87,114 +81,77 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                HomeContentCard(
+                    modifier = Modifier.weight(1f),
+                    borderColor = com.example.registration_app.ui.theme.HomeCardBorder.copy(alpha = 0.5f),
+                    imagePainter = painterResource(DrawableResources.home_information),
+                    text = "Information",
+                    onClick = { /* TODO: Navigate to Information screen */ }
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                HomeContentCard(
+                    modifier = Modifier.weight(1f),
+                    borderColor = com.example.registration_app.ui.theme.HomeCardBorder.copy(alpha = 0.5f),
+                    imagePainter = painterResource(DrawableResources.home_payment),
+                    text = "Payment",
+                    onClick = { /* TODO: Navigate to Payment screen */ }
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                HomeContentCard(
+                    modifier = Modifier.weight(1f),
+                    borderColor = com.example.registration_app.ui.theme.HomeCardBorder.copy(alpha = 0.5f),
+                    imagePainter = painterResource(DrawableResources.home_profile),
+                    text = "Student Profile",
+                    onClick = { /* TODO: Navigate to Student Profile screen */ }
+                )
+            }
+            HomeHorizontalContentCard(
+                borderColor = HomeCardBorder.copy(alpha = 0.5f),
+                imagePainter = painterResource(DrawableResources.home_profile),
+                text = "Student Registration",
+                onClick = { /* TODO: Navigate to Student Registration screen */ }
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                HomeContentCard(
+                    modifier = Modifier.weight(1f),
+                    borderColor = HomeCardBorder.copy(alpha = 0.5f),
+                    imagePainter = painterResource(DrawableResources.home_study_program),
+                    text = "Study Program",
+                    onClick = { /* TODO: Navigate to Study Program screen */ }
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                HomeContentCard(
+                    modifier = Modifier.weight(1f),
+                    borderColor = HomeCardBorder.copy(alpha = 0.5f),
+                    imagePainter = painterResource(DrawableResources.home_nursery_class),
+                    text = "Nursery Class",
+                    onClick = { /* TODO: Navigate to Nursery Class screen */ }
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                HomeContentCard(
+                    modifier = Modifier.weight(1f),
+                    borderColor = HomeCardBorder.copy(alpha = 0.5f),
+                    imagePainter = painterResource(DrawableResources.home_research_task),
+                    text = "Research Task",
+                    onClick = { /* TODO: Navigate to Research Task screen */ }
+                )
+            }
         }
     }
 }
 
-@Composable
-fun HomeHeader() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 20.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Logo
-        Image(
-            painter = painterResource(id = DrawableResources.Logo),
-            contentDescription = "University Logo",
-            modifier = Modifier.size(64.dp)
-        )
 
-        Spacer(modifier = Modifier.width(16.dp))
 
-        // University Name
-        Text(
-            text = "Modern Science University",
-            fontSize = 19.sp,
-            fontWeight = FontWeight.Bold,
-            color = HomeTextDark,
-            style = MaterialTheme.typography.titleLarge
-        )
-    }
-}
 
-//@Composable
-//fun HomeMenuCard(
-//    title: String,
-//    icon: ImageVector,
-//    onClick: () -> Unit,
-//    modifier: Modifier = Modifier
-//) {
-//    Column(
-//        modifier = modifier
-//            .shadow(
-//                elevation = 4.dp,
-//                shape = RoundedCornerShape(16.dp)
-//            )
-//            .clip(RoundedCornerShape(16.dp))
-//            .background(HomeCardBackground)
-//            .border(2.5.dp, HomeYellowBorder, RoundedCornerShape(16.dp))
-//            .clickable { onClick() }
-//            .padding(vertical = 20.dp, horizontal = 12.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
-//    ) {
-//        Icon(
-//            imageVector = icon,
-//            contentDescription = title,
-//            modifier = Modifier.size(56.dp),
-//            tint = HomeYellowBorder
-//        )
-//        Spacer(modifier = Modifier.height(12.dp))
-//        Text(
-//            text = title,
-//            fontSize = 13.sp,
-//            fontWeight = FontWeight.SemiBold,
-//            color = HomeTextDark,
-//            textAlign = TextAlign.Center,
-//            lineHeight = 16.sp
-//        )
-//    }
-//}
-//
-//@Composable
-//fun HomeMenuCardWide(
-//    title: String,
-//    icon: ImageVector,
-//    onClick: () -> Unit,
-//    modifier: Modifier = Modifier
-//) {
-//    Row(
-//        modifier = modifier
-//            .shadow(
-//                elevation = 4.dp,
-//                shape = RoundedCornerShape(16.dp)
-//            )
-//            .clip(RoundedCornerShape(16.dp))
-//            .background(HomeCardBackground)
-//            .border(2.5.dp, HomeYellowBorder, RoundedCornerShape(16.dp))
-//            .clickable { onClick() }
-//            .padding(vertical = 18.dp, horizontal = 20.dp),
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//        Icon(
-//            imageVector = icon,
-//            contentDescription = title,
-//            modifier = Modifier.size(56.dp),
-//            tint = HomeYellowBorder
-//        )
-//        Spacer(modifier = Modifier.width(16.dp))
-//        Text(
-//            text = title,
-//            fontSize = 15.sp,
-//            fontWeight = FontWeight.SemiBold,
-//            color = HomeTextDark,
-//            style = MaterialTheme.typography.titleMedium
-//        )
-//    }
-//}

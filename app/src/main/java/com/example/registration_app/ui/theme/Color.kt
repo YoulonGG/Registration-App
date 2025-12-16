@@ -25,5 +25,6 @@ val LoginWhite = Color(0xFFFFFFFF) // White background
 
 // Home Screen Colors
 val HomeYellowBorder = Color(0xFFFFC107) // Yellow border for cards
+val HomeCardBorder = Color(0xFFE5B311) // Card border color E5B311
 val HomeCardBackground = Color(0xFFFFFFFF) // White card background
 val HomeTextDark = Color(0xFF212121) // Dark text color
