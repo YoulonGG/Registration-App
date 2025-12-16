@@ -20,9 +20,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
@@ -483,7 +483,7 @@ fun DateOfBirthPicker(
                 modifier = Modifier.weight(1f)
             )
             Icon(
-                imageVector = Icons.Default.CalendarToday,
+                imageVector = Icons.Default.Info,
                 contentDescription = "Date Picker",
                 tint = Color(0xFFFFC107),
                 modifier = Modifier.size(24.dp)
