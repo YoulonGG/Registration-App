@@ -1,17 +1,24 @@
 package com.example.registration_app.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.registration_app.domain.usecase.GetCurrentUserUseCase
 import com.example.registration_app.presentation.forgotpassword.ForgotPasswordScreen
 import com.example.registration_app.presentation.home.HomeScreen
 import com.example.registration_app.presentation.login.LoginScreen
 import com.example.registration_app.presentation.resetpassword.ResetPasswordScreen
 import com.example.registration_app.presentation.signup.SignUpScreen
 import com.example.registration_app.presentation.splash.SplashScreen
+import com.example.registration_app.util.PreferencesManager
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
@@ -27,7 +34,9 @@ sealed class Screen(val route: String) {
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    startDestination: String = Screen.Splash.route
+    preferencesManager: PreferencesManager,
+    getCurrentUserUseCase: GetCurrentUserUseCase,
+    startDestination: String
 ) {
     NavHost(
         navController = navController,
@@ -75,6 +84,9 @@ fun NavGraph(
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

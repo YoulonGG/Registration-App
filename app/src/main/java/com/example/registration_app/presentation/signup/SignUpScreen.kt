@@ -1,28 +1,80 @@
 package com.example.registration_app.presentation.signup
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.registration_app.ui.theme.LoginDarkGray
+import com.example.registration_app.ui.theme.LoginGoldenYellow
+import com.example.registration_app.ui.theme.LoginLightGray
+import com.example.registration_app.ui.theme.LoginTealGreen
+import com.example.registration_app.ui.theme.LoginWhite
+import com.example.registration_app.util.DrawableResources
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     onNavigateToLogin: () -> Unit,
     onSignUpSuccess: () -> Unit,
+    onNavigateBack: () -> Unit = {},
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -34,114 +86,323 @@ fun SignUpScreen(
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .background(LoginTealGreen)
     ) {
-        Text(
-            text = "Sign Up",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-
-        OutlinedTextField(
-            value = state.username,
-            onValueChange = { viewModel.handleIntent(SignUpIntent.UpdateUsername(it)) },
-            label = { Text("Username") },
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.Person, contentDescription = "Username")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            singleLine = true,
-            enabled = !state.isLoading
-        )
-
-        OutlinedTextField(
-            value = state.email,
-            onValueChange = { viewModel.handleIntent(SignUpIntent.UpdateEmail(it)) },
-            label = { Text("Email") },
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.Email, contentDescription = "Email")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true,
-            enabled = !state.isLoading
-        )
-
-        OutlinedTextField(
-            value = state.password,
-            onValueChange = { viewModel.handleIntent(SignUpIntent.UpdatePassword(it)) },
-            label = { Text("Password") },
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.Lock, contentDescription = "Password")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true,
-            enabled = !state.isLoading
-        )
-
-        OutlinedTextField(
-            value = state.confirmPassword,
-            onValueChange = { viewModel.handleIntent(SignUpIntent.UpdateConfirmPassword(it)) },
-            label = { Text("Confirm Password") },
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.Lock, contentDescription = "Confirm Password")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            singleLine = true,
-            enabled = !state.isLoading
-        )
-
-        state.errorMessage?.let { error ->
-            Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                textAlign = TextAlign.Center
-            )
-        }
-
-        Button(
-            onClick = { viewModel.handleIntent(SignUpIntent.SignUp) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            enabled = !state.isLoading
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            } else {
-                Text("Sign Up", style = MaterialTheme.typography.titleMedium)
+            SignUpHeader(
+                onNavigateBack = onNavigateBack
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 10.dp)
+                    .background(color = LoginTealGreen)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedTopLeftShape(radius = 75.dp),
+                            spotColor = Color.Black.copy(alpha = 0.25f),
+                            ambientColor = Color.Black.copy(alpha = 0.15f)
+                        )
+                        .background(
+                            color = LoginWhite,
+                            shape = RoundedTopLeftShape(radius = 80.dp)
+                        )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Image(
+                            painter = painterResource(id = DrawableResources.SignUpIllustration),
+                            contentDescription = "Sign Up Illustration",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp),
+                            contentScale = ContentScale.Fit
+                        )
+
+                        Spacer(modifier = Modifier.height(40.dp))
+
+                        CustomTextField(
+                            value = state.username,
+                            onValueChange = { viewModel.handleIntent(SignUpIntent.UpdateUsername(it)) },
+                            placeholder = "Full Name",
+                            icon = Icons.Default.Person,
+                            keyboardType = KeyboardType.Text,
+                            enabled = !state.isLoading,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        CustomTextField(
+                            value = state.email,
+                            onValueChange = { viewModel.handleIntent(SignUpIntent.UpdateEmail(it)) },
+                            placeholder = "Email Address",
+                            icon = Icons.Default.Email,
+                            keyboardType = KeyboardType.Email,
+                            enabled = !state.isLoading,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        CustomTextField(
+                            value = state.password,
+                            onValueChange = { viewModel.handleIntent(SignUpIntent.UpdatePassword(it)) },
+                            placeholder = "Password",
+                            icon = Icons.Default.Lock,
+                            keyboardType = KeyboardType.Password,
+                            isPassword = true,
+                            enabled = !state.isLoading,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        state.errorMessage?.let { error ->
+                            Text(
+                                text = error,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                textAlign = TextAlign.Center,
+                                fontSize = 13.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(28.dp))
+
+                        Button(
+                            onClick = { viewModel.handleIntent(SignUpIntent.SignUp) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .shadow(
+                                    elevation = 4.dp,
+                                    shape = RoundedCornerShape(12.dp)
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = LoginGoldenYellow,
+                                disabledContainerColor = LoginGoldenYellow
+                            ),
+                            enabled = !state.isLoading
+                        ) {
+                            if (state.isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = LoginWhite
+                                )
+                            } else {
+                                Text(
+                                    text = "Sign Up",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = LoginWhite,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        val loginText = buildAnnotatedString {
+                            withStyle(style = SpanStyle(color = LoginDarkGray)) {
+                                append("Already have an account? ")
+                            }
+                            withStyle(style = SpanStyle(color = LoginGoldenYellow, fontWeight = FontWeight.Bold)) {
+                                append("Login")
+                            }
+                        }
+
+                        Text(
+                            text = loginText,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .padding(bottom = 32.dp)
+                                .clickable { onNavigateToLogin() },
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(16.dp))
+@Composable
+fun SignUpHeader(
+    onNavigateBack: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Spacer(modifier = Modifier.height(24.dp))
 
-        TextButton(onClick = onNavigateToLogin) {
-            Text("Already have an account? Login")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clickable { onNavigateBack() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = LoginWhite,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = "Create Account",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = LoginWhite
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+            
+            Spacer(modifier = Modifier.size(48.dp))
+        }
+    }
+}
+
+// Custom Shape with rounded top-left corner (reuse from LoginScreen)
+class RoundedTopLeftShape(private val radius: androidx.compose.ui.unit.Dp) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: androidx.compose.ui.unit.LayoutDirection,
+        density: androidx.compose.ui.unit.Density
+    ): Outline {
+        val radiusPx = with(density) { radius.toPx() }
+        val path = Path().apply {
+            moveTo(0f, size.height)
+            lineTo(0f, radiusPx)
+            cubicTo(
+                x1 = 0f, y1 = radiusPx * 0.55f,
+                x2 = radiusPx * 0.45f, y2 = 0f,
+                x3 = radiusPx, y3 = 0f
+            )
+            lineTo(size.width, 0f)
+            lineTo(size.width, size.height)
+            lineTo(0f, size.height)
+            close()
+        }
+        return Outline.Generic(path)
+    }
+}
+
+@Composable
+fun CustomTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    keyboardType: KeyboardType,
+    modifier: Modifier = Modifier,
+    isPassword: Boolean = false,
+    enabled: Boolean = true
+) {
+    var passwordVisible by remember { mutableStateOf(false) }
+    
+    Box(
+        modifier = modifier
+            .height(56.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(LoginLightGray)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = LoginDarkGray.copy(alpha = 0.7f),
+                modifier = Modifier.size(22.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            CompositionLocalProvider(
+                LocalTextSelectionColors provides TextSelectionColors(
+                    handleColor = Color.Black,
+                    backgroundColor = Color.Black.copy(alpha = 0.3f)
+                )
+            ) {
+                BasicTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .background(Color.Transparent),
+                    singleLine = true,
+                    enabled = enabled,
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    visualTransformation = if (isPassword) {
+                        if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
+                    } else {
+                        VisualTransformation.None
+                    },
+                    textStyle = TextStyle(
+                        color = Color.Black,
+                        fontSize = 15.sp
+                    ),
+                    cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.Black),
+                    decorationBox = { innerTextField ->
+                        if (value.isEmpty()) {
+                            Text(
+                                text = placeholder,
+                                color = LoginDarkGray,
+                                fontSize = 14.sp
+                            )
+                        }
+                        innerTextField()
+                    }
+                )
+            }
+
+            if (isPassword) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    painter = painterResource(
+                        id = if (passwordVisible) DrawableResources.VisibilityOff else DrawableResources.Visibility
+                    ),
+                    contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                    tint = LoginDarkGray.copy(alpha = 0.7f),
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clickable { passwordVisible = !passwordVisible }
+                )
+            }
         }
     }
 }

@@ -1,14 +1,46 @@
 package com.example.registration_app.presentation.home
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.registration_app.ui.theme.HomeTextDark
+import com.example.registration_app.ui.theme.LoginWhite
+import com.example.registration_app.util.DrawableResources
+
+data class HomeMenuItem(
+    val title: String,
+    val icon: ImageVector,
+    val onClick: () -> Unit
+)
 
 @Composable
 fun HomeScreen(
@@ -24,55 +56,145 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .background(LoginWhite)
     ) {
-        Text(
-            text = "Welcome!",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        // Header with logo and university name
+        HomeHeader()
 
-        state.user?.let { user ->
-            if (!user.username.isNullOrBlank()) {
-                Text(
-                    text = "Welcome, ${user.username}!",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
-            Text(
-                text = "Email: ${user.email ?: "N/A"}",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            if (!user.username.isNullOrBlank()) {
-                Text(
-                    text = "Username: ${user.username}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-            }
-            Text(
-                text = "UID: ${user.uid}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-        }
-
-        Button(
-            onClick = {
-                viewModel.signOut()
-                onSignOut()
-            },
+        // Banner Image
+        Image(
+            painter = painterResource(id = DrawableResources.HomeBanner),
+            contentDescription = "University Banner",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(220.dp),
+            contentScale = ContentScale.Crop
+        )
+
+        // Khmer Text Section
+        Text(
+            text = "ចង់ចេះត្រូវខំរៀន ចង់មានត្រូវខំរក",
+            fontSize = 17.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = HomeTextDark,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 20.dp, horizontal = 24.dp)
+        )
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Sign Out", style = MaterialTheme.typography.titleMedium)
+
         }
     }
 }
+
+@Composable
+fun HomeHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 20.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Logo
+        Image(
+            painter = painterResource(id = DrawableResources.Logo),
+            contentDescription = "University Logo",
+            modifier = Modifier.size(64.dp)
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // University Name
+        Text(
+            text = "Modern Science University",
+            fontSize = 19.sp,
+            fontWeight = FontWeight.Bold,
+            color = HomeTextDark,
+            style = MaterialTheme.typography.titleLarge
+        )
+    }
+}
+
+//@Composable
+//fun HomeMenuCard(
+//    title: String,
+//    icon: ImageVector,
+//    onClick: () -> Unit,
+//    modifier: Modifier = Modifier
+//) {
+//    Column(
+//        modifier = modifier
+//            .shadow(
+//                elevation = 4.dp,
+//                shape = RoundedCornerShape(16.dp)
+//            )
+//            .clip(RoundedCornerShape(16.dp))
+//            .background(HomeCardBackground)
+//            .border(2.5.dp, HomeYellowBorder, RoundedCornerShape(16.dp))
+//            .clickable { onClick() }
+//            .padding(vertical = 20.dp, horizontal = 12.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
+//    ) {
+//        Icon(
+//            imageVector = icon,
+//            contentDescription = title,
+//            modifier = Modifier.size(56.dp),
+//            tint = HomeYellowBorder
+//        )
+//        Spacer(modifier = Modifier.height(12.dp))
+//        Text(
+//            text = title,
+//            fontSize = 13.sp,
+//            fontWeight = FontWeight.SemiBold,
+//            color = HomeTextDark,
+//            textAlign = TextAlign.Center,
+//            lineHeight = 16.sp
+//        )
+//    }
+//}
+//
+//@Composable
+//fun HomeMenuCardWide(
+//    title: String,
+//    icon: ImageVector,
+//    onClick: () -> Unit,
+//    modifier: Modifier = Modifier
+//) {
+//    Row(
+//        modifier = modifier
+//            .shadow(
+//                elevation = 4.dp,
+//                shape = RoundedCornerShape(16.dp)
+//            )
+//            .clip(RoundedCornerShape(16.dp))
+//            .background(HomeCardBackground)
+//            .border(2.5.dp, HomeYellowBorder, RoundedCornerShape(16.dp))
+//            .clickable { onClick() }
+//            .padding(vertical = 18.dp, horizontal = 20.dp),
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        Icon(
+//            imageVector = icon,
+//            contentDescription = title,
+//            modifier = Modifier.size(56.dp),
+//            tint = HomeYellowBorder
+//        )
+//        Spacer(modifier = Modifier.width(16.dp))
+//        Text(
+//            text = title,
+//            fontSize = 15.sp,
+//            fontWeight = FontWeight.SemiBold,
+//            color = HomeTextDark,
+//            style = MaterialTheme.typography.titleMedium
+//        )
+//    }
+//}

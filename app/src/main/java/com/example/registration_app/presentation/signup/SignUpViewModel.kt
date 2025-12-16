@@ -62,30 +62,36 @@ class SignUpViewModel @Inject constructor(
     private fun signUp() {
         val currentState = _state.value
 
-        if (currentState.username.isBlank() || currentState.email.isBlank() || currentState.password.isBlank() || currentState.confirmPassword.isBlank()) {
+        val trimmedUsername = currentState.username.trim()
+        val trimmedEmail = currentState.email.trim()
+        val trimmedPassword = currentState.password.trim()
+
+        if (trimmedUsername.isBlank() || trimmedEmail.isBlank() || trimmedPassword.isBlank()) {
             _state.value = currentState.copy(
                 errorMessage = "Please fill in all fields"
             )
             return
         }
 
-        if (currentState.username.length < 3) {
+        if (trimmedUsername.length < 3) {
             _state.value = currentState.copy(
                 errorMessage = "Username must be at least 3 characters"
             )
             return
         }
 
-        if (currentState.password != currentState.confirmPassword) {
+        if (trimmedPassword.length < 6) {
             _state.value = currentState.copy(
-                errorMessage = "Passwords do not match"
+                errorMessage = "Password must be at least 6 characters"
             )
             return
         }
 
-        if (currentState.password.length < 6) {
+        // Only validate confirmPassword if it's provided
+        val trimmedConfirmPassword = currentState.confirmPassword.trim()
+        if (trimmedConfirmPassword.isNotBlank() && trimmedPassword != trimmedConfirmPassword) {
             _state.value = currentState.copy(
-                errorMessage = "Password must be at least 6 characters"
+                errorMessage = "Passwords do not match"
             )
             return
         }
@@ -97,7 +103,7 @@ class SignUpViewModel @Inject constructor(
                 isSuccess = false
             )
 
-            when (val result = signUpUseCase(currentState.email, currentState.password, currentState.username)) {
+            when (val result = signUpUseCase(trimmedEmail, trimmedPassword, trimmedUsername)) {
                 is AuthResult.Success -> {
                     _state.value = _state.value.copy(
                         isLoading = false,
