@@ -12,4 +12,12 @@ class StudentRegistrationRepositoryImpl @Inject constructor(
     override suspend fun registerStudent(registration: StudentRegistration): AuthResult<Unit> {
         return firestoreDataSource.saveStudentRegistration(registration)
     }
+
+    override suspend fun getStudentRegistrationByUserId(userId: String): AuthResult<StudentRegistration?> {
+        return firestoreDataSource.getStudentRegistrationByUserId(userId)
+    }
+
+    override suspend fun updateStudentRegistration(userId: String, registration: StudentRegistration): AuthResult<Unit> {
+        return firestoreDataSource.updateStudentRegistration(userId, registration)
+    }
 }

@@ -56,6 +56,24 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    suspend fun updateUserProfile(user: User): AuthResult<Unit> {
+        return try {
+            val userMap = hashMapOf(
+                "email" to (user.email ?: ""),
+                "username" to (user.username ?: "")
+            )
+            
+            firestore.collection(USERS_COLLECTION)
+                .document(user.uid)
+                .update(userMap.toMap())
+                .await()
+            
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            AuthResult.Error(e.message ?: "Failed to update user profile")
+        }
+    }
+
     suspend fun saveStudentRegistration(registration: StudentRegistration): AuthResult<Unit> {
         return try {
             val registrationMap = hashMapOf(
@@ -80,6 +98,79 @@ class FirestoreDataSource @Inject constructor(
             AuthResult.Success(Unit)
         } catch (e: Exception) {
             AuthResult.Error(e.message ?: "Failed to save student registration")
+        }
+    }
+
+    suspend fun getStudentRegistrationByUserId(userId: String): AuthResult<StudentRegistration?> {
+        return try {
+            val querySnapshot = firestore.collection(STUDENT_REGISTRATIONS_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .limit(1)
+                .get()
+                .await()
+            
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents[0]
+                val registration = StudentRegistration(
+                    studentName = document.getString("studentName") ?: "",
+                    email = document.getString("email") ?: "",
+                    gender = document.getString("gender") ?: "",
+                    phoneNumber = document.getString("phoneNumber") ?: "",
+                    address = document.getString("address") ?: "",
+                    dateOfBirthDay = document.getString("dateOfBirthDay") ?: "",
+                    dateOfBirthMonth = document.getString("dateOfBirthMonth") ?: "",
+                    dateOfBirthYear = document.getString("dateOfBirthYear") ?: "",
+                    course = document.getString("course") ?: "",
+                    major = document.getString("major") ?: "",
+                    userId = document.getString("userId"),
+                    registrationDate = document.getLong("registrationDate") ?: 0L
+                )
+                AuthResult.Success(registration)
+            } else {
+                AuthResult.Success(null)
+            }
+        } catch (e: Exception) {
+            AuthResult.Error(e.message ?: "Failed to get student registration")
+        }
+    }
+
+    suspend fun updateStudentRegistration(userId: String, registration: StudentRegistration): AuthResult<Unit> {
+        return try {
+            val querySnapshot = firestore.collection(STUDENT_REGISTRATIONS_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .limit(1)
+                .get()
+                .await()
+            
+            val registrationMap = hashMapOf(
+                "studentName" to registration.studentName,
+                "email" to registration.email,
+                "gender" to registration.gender,
+                "phoneNumber" to registration.phoneNumber,
+                "address" to registration.address,
+                "dateOfBirthDay" to registration.dateOfBirthDay,
+                "dateOfBirthMonth" to registration.dateOfBirthMonth,
+                "dateOfBirthYear" to registration.dateOfBirthYear,
+                "course" to registration.course,
+                "major" to registration.major,
+                "userId" to (registration.userId ?: userId),
+                "registrationDate" to registration.registrationDate
+            )
+            
+            if (querySnapshot.isEmpty) {
+                // Create new registration if it doesn't exist (upsert behavior)
+                firestore.collection(STUDENT_REGISTRATIONS_COLLECTION)
+                    .add(registrationMap)
+                    .await()
+            } else {
+                // Update existing registration
+                val document = querySnapshot.documents[0]
+                document.reference.update(registrationMap.toMap()).await()
+            }
+            
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            AuthResult.Error(e.message ?: "Failed to update student registration")
         }
     }
 }

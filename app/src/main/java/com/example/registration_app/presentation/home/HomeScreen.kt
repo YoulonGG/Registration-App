@@ -43,6 +43,7 @@ data class HomeMenuItem(
 fun HomeScreen(
     onSignOut: () -> Unit,
     onNavigateToStudentRegistration: () -> Unit = {},
+    onNavigateToStudentProfile: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -111,7 +112,7 @@ fun HomeScreen(
                     borderColor = com.example.registration_app.ui.theme.HomeCardBorder.copy(alpha = 0.5f),
                     imagePainter = painterResource(DrawableResources.home_profile),
                     text = "Student Profile",
-                    onClick = { /* TODO: Navigate to Student Profile screen */ }
+                    onClick = onNavigateToStudentProfile
                 )
             }
             HomeHorizontalContentCard(

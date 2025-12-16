@@ -18,6 +18,7 @@ import com.example.registration_app.presentation.login.LoginScreen
 import com.example.registration_app.presentation.resetpassword.ResetPasswordScreen
 import com.example.registration_app.presentation.signup.SignUpScreen
 import com.example.registration_app.presentation.splash.SplashScreen
+import com.example.registration_app.presentation.studentprofile.StudentProfileScreen
 import com.example.registration_app.presentation.studentregistration.MajorRegistrationScreen
 import com.example.registration_app.presentation.studentregistration.StudentRegistrationRoute
 import com.example.registration_app.util.PreferencesManager
@@ -35,6 +36,7 @@ sealed class Screen(val route: String) {
     object MajorRegistration : Screen("major_registration") {
         fun createRoute(majorName: String) = "major_registration/$majorName"
     }
+    object StudentProfile : Screen("student_profile")
 }
 
 @Composable
@@ -106,6 +108,22 @@ fun NavGraph(
                 },
                 onNavigateToStudentRegistration = {
                     navController.navigate(Screen.StudentRegistration.route)
+                },
+                onNavigateToStudentProfile = {
+                    navController.navigate(Screen.StudentProfile.route)
+                }
+            )
+        }
+
+        composable(Screen.StudentProfile.route) {
+            StudentProfileScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onSignOut = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
                 }
             )
         }
