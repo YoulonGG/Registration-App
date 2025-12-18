@@ -18,10 +18,10 @@ class FirebaseAuthDataSource @Inject constructor(
             if (firebaseUser != null) {
                 AuthResult.Success(firebaseUser.toDomainUser())
             } else {
-                AuthResult.Error("Sign in failed: User is null")
+                AuthResult.Error("Cannot sign in. Please try again.")
             }
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Sign in failed")
+            AuthResult.Error(e.message ?: "Cannot sign in. Please check your email and password.")
         }
     }
 
@@ -32,10 +32,10 @@ class FirebaseAuthDataSource @Inject constructor(
             if (firebaseUser != null) {
                 AuthResult.Success(firebaseUser.toDomainUser())
             } else {
-                AuthResult.Error("Sign up failed: User is null")
+                AuthResult.Error("Cannot create account. Please try again.")
             }
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Sign up failed")
+            AuthResult.Error(e.message ?: "Cannot create account. Please try again.")
         }
     }
 
@@ -55,7 +55,7 @@ class FirebaseAuthDataSource @Inject constructor(
             firebaseAuth.sendPasswordResetEmail(email).await()
             AuthResult.Success(Unit)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Failed to send password reset email")
+            AuthResult.Error(e.message ?: "Cannot send reset email. Please try again.")
         }
     }
 
@@ -64,7 +64,7 @@ class FirebaseAuthDataSource @Inject constructor(
             val email = firebaseAuth.verifyPasswordResetCode(oobCode).await()
             AuthResult.Success(email)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Invalid or expired reset code")
+            AuthResult.Error(e.message ?: "Reset link is not valid or expired. Please request a new one.")
         }
     }
 
@@ -73,7 +73,7 @@ class FirebaseAuthDataSource @Inject constructor(
             firebaseAuth.confirmPasswordReset(oobCode, newPassword).await()
             AuthResult.Success(Unit)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Failed to reset password")
+            AuthResult.Error(e.message ?: "Cannot reset password. Please try again.")
         }
     }
 

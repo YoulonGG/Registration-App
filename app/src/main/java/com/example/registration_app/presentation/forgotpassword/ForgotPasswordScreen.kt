@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.registration_app.presentation.common.ErrorDialog
 import com.example.registration_app.ui.theme.LoginDarkGray
 import com.example.registration_app.ui.theme.LoginGoldenYellow
 import com.example.registration_app.ui.theme.LoginLightGray
@@ -68,6 +69,17 @@ fun ForgotPasswordScreen(
     viewModel: ForgotPasswordViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // Show error dialog
+    state.errorMessage?.let { error ->
+        ErrorDialog(
+            title = "Cannot Reset Password",
+            message = error,
+            onDismiss = {
+                viewModel.handleIntent(ForgotPasswordIntent.ClearError)
+            }
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -179,20 +191,6 @@ fun ForgotPasswordScreen(
                                 enabled = !state.isLoading,
                                 modifier = Modifier.fillMaxWidth()
                             )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            state.errorMessage?.let { error ->
-                                Text(
-                                    text = error,
-                                    color = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp),
-                                    textAlign = TextAlign.Center,
-                                    fontSize = 13.sp
-                                )
-                            }
 
                             Spacer(modifier = Modifier.height(28.dp))
 

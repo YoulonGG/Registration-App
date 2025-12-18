@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
@@ -59,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.registration_app.domain.model.UserType
+import com.example.registration_app.presentation.common.ErrorDialog
 import com.example.registration_app.ui.theme.LoginDarkGray
 import com.example.registration_app.ui.theme.LoginGoldenYellow
 import com.example.registration_app.ui.theme.LoginLightGray
@@ -68,18 +71,35 @@ import com.example.registration_app.util.DrawableResources
 
 @Composable
 fun LoginScreen(
-    onNavigateToSignUp: () -> Unit,
+    userType: UserType,
+    onNavigateToSignUp: (UserType) -> Unit,
     onNavigateToForgotPassword: () -> Unit,
     onLoginSuccess: () -> Unit,
+    onNavigateBack: () -> Unit = {},
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(userType) {
+        viewModel.setExpectedUserType(userType)
+    }
 
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
             onLoginSuccess()
             viewModel.resetSuccessState()
         }
+    }
+
+    // Show error dialog
+    state.errorMessage?.let { error ->
+        ErrorDialog(
+            title = "Cannot Login",
+            message = error,
+            onDismiss = {
+                viewModel.handleIntent(LoginIntent.ClearError)
+            }
+        )
     }
 
     Box(
@@ -90,7 +110,10 @@ fun LoginScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            LoginHeader()
+            LoginHeader(
+                userType = userType,
+                onNavigateBack = onNavigateBack
+            )
 
             Box(
                 modifier = Modifier
@@ -154,18 +177,6 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        state.errorMessage?.let { error ->
-                            Text(
-                                text = error,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                textAlign = TextAlign.Center,
-                                fontSize = 13.sp
-                            )
-                        }
-
                         Text(
                             text = "Forgot Password?",
                             color = LoginGoldenYellow,
@@ -228,7 +239,7 @@ fun LoginScreen(
                             fontSize = 14.sp,
                             modifier = Modifier
                                 .padding(bottom = 32.dp)
-                                .clickable { onNavigateToSignUp() },
+                                .clickable { onNavigateToSignUp(userType) },
                             textAlign = TextAlign.Center
                         )
                     }
@@ -240,7 +251,10 @@ fun LoginScreen(
 
 
 @Composable
-fun LoginHeader() {
+fun LoginHeader(
+    userType: UserType,
+    onNavigateBack: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -252,12 +266,24 @@ fun LoginHeader() {
                 .padding(horizontal = 16.dp, vertical = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(modifier = Modifier.size(48.dp))
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clickable { onNavigateBack() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = LoginWhite,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = "Student Login",
+                text = "${userType.name} Login",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = LoginWhite

@@ -3,6 +3,7 @@ package com.example.registration_app.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.registration_app.domain.model.AuthResult
+import com.example.registration_app.domain.model.UserType
 import com.example.registration_app.domain.usecase.SignInUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,10 @@ class LoginViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state.asStateFlow()
+
+    fun setExpectedUserType(userType: UserType) {
+        _state.value = _state.value.copy(expectedUserType = userType)
+    }
 
     fun handleIntent(intent: LoginIntent) {
         when (intent) {
@@ -50,7 +55,7 @@ class LoginViewModel @Inject constructor(
         
         if (currentState.email.isBlank() || currentState.password.isBlank()) {
             _state.value = currentState.copy(
-                errorMessage = "Please fill in all fields"
+                errorMessage = "Please enter your email and password"
             )
             return
         }
@@ -64,11 +69,41 @@ class LoginViewModel @Inject constructor(
 
             when (val result = signInUseCase(currentState.email, currentState.password)) {
                 is AuthResult.Success -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        isSuccess = true,
-                        errorMessage = null
-                    )
+                    // Validate user type if expected user type is set
+                    val user = result.data
+                    if (currentState.expectedUserType != null) {
+                        when {
+                            user.userType == null -> {
+                                _state.value = _state.value.copy(
+                                    isLoading = false,
+                                    errorMessage = "Your account type is missing. Please contact support or create a new account.",
+                                    isSuccess = false
+                                )
+                            }
+                            user.userType != currentState.expectedUserType -> {
+                                val accountType = if (user.userType == UserType.ADMIN) "admin" else "student"
+                                _state.value = _state.value.copy(
+                                    isLoading = false,
+                                    errorMessage = "This account is for ${accountType}. Please use the ${accountType} login.",
+                                    isSuccess = false
+                                )
+                            }
+                            else -> {
+                                _state.value = _state.value.copy(
+                                    isLoading = false,
+                                    isSuccess = true,
+                                    errorMessage = null
+                                )
+                            }
+                        }
+                    } else {
+                        // No expected user type set, allow login
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            isSuccess = true,
+                            errorMessage = null
+                        )
+                    }
                 }
 
                 is AuthResult.Error -> {

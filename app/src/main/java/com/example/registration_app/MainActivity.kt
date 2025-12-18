@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
+import com.example.registration_app.domain.model.UserType
 import com.example.registration_app.domain.usecase.GetCurrentUserUseCase
 import com.example.registration_app.presentation.navigation.NavGraph
 import com.example.registration_app.presentation.navigation.Screen
@@ -59,12 +60,17 @@ class MainActivity : ComponentActivity() {
                         startDestination = if (isOnboardingCompleted) {
                             val user = getCurrentUserUseCase()
                             if (user != null) {
-                                Screen.Home.route
+                                // Route to AdminHome if admin, Home if student
+                                if (user.userType == UserType.ADMIN) {
+                                    Screen.AdminHome.route
+                                } else {
+                                    Screen.Home.route
+                                }
                             } else {
-                                Screen.Login.route
+                                Screen.UserTypeSelection.route
                             }
                         } else {
-                            Screen.Splash.route
+                            Screen.Onboarding.route
                         }
                     }
                     

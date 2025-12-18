@@ -3,6 +3,7 @@ package com.example.registration_app.data.datasource
 import com.example.registration_app.domain.model.AuthResult
 import com.example.registration_app.domain.model.StudentRegistration
 import com.example.registration_app.domain.model.User
+import com.example.registration_app.domain.model.UserType
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -20,7 +21,8 @@ class FirestoreDataSource @Inject constructor(
             val userMap = hashMapOf(
                 "uid" to user.uid,
                 "email" to (user.email ?: ""),
-                "username" to (user.username ?: "")
+                "username" to (user.username ?: ""),
+                "userType" to (user.userType?.name ?: "")
             )
             
             firestore.collection(USERS_COLLECTION)
@@ -30,7 +32,7 @@ class FirestoreDataSource @Inject constructor(
             
             AuthResult.Success(Unit)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Failed to save user profile")
+            AuthResult.Error(e.message ?: "Cannot save profile. Please try again.")
         }
     }
 
@@ -42,17 +44,27 @@ class FirestoreDataSource @Inject constructor(
                 .await()
             
             if (document.exists()) {
+                val userTypeString = document.getString("userType")
+                val userType = userTypeString?.let { 
+                    try {
+                        UserType.valueOf(it)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                
                 val user = User(
                     uid = document.getString("uid") ?: uid,
                     email = document.getString("email"),
-                    username = document.getString("username")
+                    username = document.getString("username"),
+                    userType = userType
                 )
                 AuthResult.Success(user)
             } else {
                 AuthResult.Success(null)
             }
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Failed to get user profile")
+            AuthResult.Error(e.message ?: "Cannot load profile. Please try again.")
         }
     }
 
@@ -60,7 +72,8 @@ class FirestoreDataSource @Inject constructor(
         return try {
             val userMap = hashMapOf(
                 "email" to (user.email ?: ""),
-                "username" to (user.username ?: "")
+                "username" to (user.username ?: ""),
+                "userType" to (user.userType?.name ?: "")
             )
             
             firestore.collection(USERS_COLLECTION)
@@ -70,7 +83,7 @@ class FirestoreDataSource @Inject constructor(
             
             AuthResult.Success(Unit)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Failed to update user profile")
+            AuthResult.Error(e.message ?: "Cannot update profile. Please try again.")
         }
     }
 
@@ -97,7 +110,7 @@ class FirestoreDataSource @Inject constructor(
             
             AuthResult.Success(Unit)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Failed to save student registration")
+            AuthResult.Error(e.message ?: "Cannot save registration. Please try again.")
         }
     }
 
@@ -130,7 +143,7 @@ class FirestoreDataSource @Inject constructor(
                 AuthResult.Success(null)
             }
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Failed to get student registration")
+            AuthResult.Error(e.message ?: "Cannot load registration. Please try again.")
         }
     }
 
@@ -170,7 +183,7 @@ class FirestoreDataSource @Inject constructor(
             
             AuthResult.Success(Unit)
         } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Failed to update student registration")
+            AuthResult.Error(e.message ?: "Cannot update registration. Please try again.")
         }
     }
 }

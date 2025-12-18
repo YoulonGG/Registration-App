@@ -34,7 +34,7 @@ class StudentProfileViewModel @Inject constructor(
             if (currentUser == null) {
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    errorMessage = "No user logged in"
+                    errorMessage = "You are not logged in"
                 )
                 return@launch
             }
@@ -143,7 +143,7 @@ class StudentProfileViewModel @Inject constructor(
             val currentUser = getCurrentUserUseCase()
             
             if (currentUser == null) {
-                _state.value = currentState.copy(errorMessage = "No user logged in")
+                _state.value = currentState.copy(errorMessage = "You are not logged in")
                 return@launch
             }
 
@@ -168,7 +168,7 @@ class StudentProfileViewModel @Inject constructor(
                 is AuthResult.Error -> {
                     _state.value = _state.value.copy(
                         isSaving = false,
-                        errorMessage = "Failed to update user profile: ${userUpdateResult.message}"
+                        errorMessage = "Cannot save changes. ${userUpdateResult.message}"
                     )
                 }
                 is AuthResult.Loading -> {}
@@ -180,5 +180,9 @@ class StudentProfileViewModel @Inject constructor(
         viewModelScope.launch {
             signOutUseCase()
         }
+    }
+
+    fun clearError() {
+        _state.value = _state.value.copy(errorMessage = null)
     }
 }

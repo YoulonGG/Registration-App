@@ -2,7 +2,6 @@ package com.example.registration_app.presentation.signup
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -27,14 +29,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.Text
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +49,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -63,6 +61,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.registration_app.domain.model.UserType
+import com.example.registration_app.presentation.common.ErrorDialog
 import com.example.registration_app.ui.theme.LoginDarkGray
 import com.example.registration_app.ui.theme.LoginGoldenYellow
 import com.example.registration_app.ui.theme.LoginLightGray
@@ -72,18 +72,33 @@ import com.example.registration_app.util.DrawableResources
 
 @Composable
 fun SignUpScreen(
-    onNavigateToLogin: () -> Unit,
+    userType: UserType,
+    onNavigateToLogin: (UserType) -> Unit,
     onSignUpSuccess: () -> Unit,
     onNavigateBack: () -> Unit = {},
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    LaunchedEffect(userType) {
+        viewModel.handleIntent(SignUpIntent.UpdateUserType(userType))
+    }
+
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
             onSignUpSuccess()
             viewModel.resetSuccessState()
         }
+    }
+
+    state.errorMessage?.let { error ->
+        ErrorDialog(
+            title = "Cannot Register",
+            message = error,
+            onDismiss = {
+                viewModel.handleIntent(SignUpIntent.ClearError)
+            }
+        )
     }
 
     Box(
@@ -95,6 +110,7 @@ fun SignUpScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             SignUpHeader(
+                userType = userType,
                 onNavigateBack = onNavigateBack
             )
 
@@ -173,20 +189,6 @@ fun SignUpScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        state.errorMessage?.let { error ->
-                            Text(
-                                text = error,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                textAlign = TextAlign.Center,
-                                fontSize = 13.sp
-                            )
-                        }
-
                         Spacer(modifier = Modifier.height(28.dp))
 
                         Button(
@@ -237,7 +239,7 @@ fun SignUpScreen(
                             fontSize = 14.sp,
                             modifier = Modifier
                                 .padding(bottom = 32.dp)
-                                .clickable { onNavigateToLogin() },
+                                .clickable { onNavigateToLogin(userType) },
                             textAlign = TextAlign.Center
                         )
                     }
@@ -249,6 +251,7 @@ fun SignUpScreen(
 
 @Composable
 fun SignUpHeader(
+    userType: UserType,
     onNavigateBack: () -> Unit
 ) {
     Column(
@@ -279,7 +282,7 @@ fun SignUpHeader(
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = "Create Account",
+                text = "Create ${userType.name} Account",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = LoginWhite
@@ -292,7 +295,6 @@ fun SignUpHeader(
     }
 }
 
-// Custom Shape with rounded top-left corner (reuse from LoginScreen)
 class RoundedTopLeftShape(private val radius: androidx.compose.ui.unit.Dp) : Shape {
     override fun createOutline(
         size: Size,

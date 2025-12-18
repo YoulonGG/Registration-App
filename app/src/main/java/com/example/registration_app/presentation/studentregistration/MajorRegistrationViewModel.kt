@@ -98,7 +98,7 @@ class MajorRegistrationViewModel @Inject constructor(
             currentState.dateOfBirth == null ||
             currentState.course.isBlank()) {
             _state.value = currentState.copy(
-                errorMessage = "Please fill in all required fields"
+                errorMessage = "Please fill in all fields"
             )
             return
         }
@@ -106,7 +106,7 @@ class MajorRegistrationViewModel @Inject constructor(
         // Email validation
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(currentState.email).matches()) {
             _state.value = currentState.copy(
-                errorMessage = "Please enter a valid email address"
+                errorMessage = "Please enter a valid email"
             )
             return
         }
@@ -168,5 +168,9 @@ class MajorRegistrationViewModel @Inject constructor(
 
     fun resetSuccessState() {
         _state.value = _state.value.copy(isSuccess = false)
+    }
+
+    fun clearError() {
+        _state.value = _state.value.copy(errorMessage = null)
     }
 }

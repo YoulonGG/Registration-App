@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.registration_app.presentation.common.ErrorDialog
 import com.example.registration_app.presentation.studentregistration.components.RegistrationTextField
 import com.example.registration_app.ui.theme.HomeTextDark
 import com.example.registration_app.ui.theme.LoginGoldenYellow
@@ -77,6 +78,17 @@ fun MajorRegistrationScreen(
             onRegistrationSuccess()
             viewModel.resetSuccessState()
         }
+    }
+
+    // Show error dialog
+    state.errorMessage?.let { error ->
+        ErrorDialog(
+            title = "Cannot Register",
+            message = error,
+            onDismiss = {
+                viewModel.clearError()
+            }
+        )
     }
 
     Box(
@@ -280,18 +292,6 @@ fun MajorRegistrationScreen(
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
-
-                        state.errorMessage?.let { error ->
-                            Text(
-                                text = error,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                textAlign = TextAlign.Center,
-                                fontSize = 13.sp
-                            )
-                        }
 
                         Spacer(modifier = Modifier.height(28.dp))
 

@@ -2,10 +2,11 @@ package com.example.registration_app.domain.repository
 
 import com.example.registration_app.domain.model.AuthResult
 import com.example.registration_app.domain.model.User
+import com.example.registration_app.domain.model.UserType
 
 interface AuthRepository {
     suspend fun signInWithEmail(email: String, password: String): AuthResult<User>
-    suspend fun signUpWithEmail(email: String, password: String, username: String): AuthResult<User>
+    suspend fun signUpWithEmail(email: String, password: String, username: String, userType: UserType): AuthResult<User>
     suspend fun getCurrentUser(): User?
     suspend fun signOut()
     suspend fun sendPasswordResetEmail(email: String): AuthResult<Unit>

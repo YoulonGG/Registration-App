@@ -57,14 +57,14 @@ class ResetPasswordViewModel @Inject constructor(
 
         if (code == null) {
             _state.value = currentState.copy(
-                errorMessage = "Invalid reset code. Please request a new password reset link."
+                errorMessage = "Reset link is not valid. Please request a new one."
             )
             return
         }
 
         if (currentState.newPassword.isBlank() || currentState.confirmPassword.isBlank()) {
             _state.value = currentState.copy(
-                errorMessage = "Please fill in all fields"
+                errorMessage = "Please enter your new password"
             )
             return
         }
@@ -78,7 +78,7 @@ class ResetPasswordViewModel @Inject constructor(
 
         if (currentState.newPassword.length < 6) {
             _state.value = currentState.copy(
-                errorMessage = "Password must be at least 6 characters"
+                errorMessage = "Password must be at least 6 letters"
             )
             return
         }

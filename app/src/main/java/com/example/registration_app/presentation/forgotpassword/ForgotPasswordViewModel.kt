@@ -43,14 +43,14 @@ class ForgotPasswordViewModel @Inject constructor(
 
         if (currentState.email.isBlank()) {
             _state.value = currentState.copy(
-                errorMessage = "Please enter your email address"
+                errorMessage = "Please enter your email"
             )
             return
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(currentState.email).matches()) {
             _state.value = currentState.copy(
-                errorMessage = "Please enter a valid email address"
+                errorMessage = "Please enter a valid email"
             )
             return
         }

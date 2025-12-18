@@ -3,6 +3,7 @@ package com.example.registration_app.presentation.signup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.registration_app.domain.model.AuthResult
+import com.example.registration_app.domain.model.UserType
 import com.example.registration_app.domain.usecase.SignUpUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,6 +50,13 @@ class SignUpViewModel @Inject constructor(
                 )
             }
 
+            is SignUpIntent.UpdateUserType -> {
+                _state.value = _state.value.copy(
+                    userType = intent.userType,
+                    errorMessage = null
+                )
+            }
+
             is SignUpIntent.SignUp -> {
                 signUp()
             }
@@ -73,16 +81,23 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
+        if (currentState.userType == null) {
+            _state.value = currentState.copy(
+                errorMessage = "Please choose admin or student"
+            )
+            return
+        }
+
         if (trimmedUsername.length < 3) {
             _state.value = currentState.copy(
-                errorMessage = "Username must be at least 3 characters"
+                errorMessage = "Username must be at least 3 letters"
             )
             return
         }
 
         if (trimmedPassword.length < 6) {
             _state.value = currentState.copy(
-                errorMessage = "Password must be at least 6 characters"
+                errorMessage = "Password must be at least 6 letters"
             )
             return
         }
@@ -103,7 +118,7 @@ class SignUpViewModel @Inject constructor(
                 isSuccess = false
             )
 
-            when (val result = signUpUseCase(trimmedEmail, trimmedPassword, trimmedUsername)) {
+            when (val result = signUpUseCase(trimmedEmail, trimmedPassword, trimmedUsername, currentState.userType!!)) {
                 is AuthResult.Success -> {
                     _state.value = _state.value.copy(
                         isLoading = false,

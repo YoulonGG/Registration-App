@@ -5,6 +5,7 @@ import com.example.registration_app.data.datasource.FirestoreDataSource
 import com.example.registration_app.data.datasource.OtpDataSource
 import com.example.registration_app.domain.model.AuthResult
 import com.example.registration_app.domain.model.User
+import com.example.registration_app.domain.model.UserType
 import com.example.registration_app.domain.repository.AuthRepository
 import javax.inject.Inject
 
@@ -33,24 +34,24 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun signUpWithEmail(email: String, password: String, username: String): AuthResult<User> {
+    override suspend fun signUpWithEmail(email: String, password: String, username: String, userType: UserType): AuthResult<User> {
         // First, create user in Firebase Authentication
         val authResult = firebaseAuthDataSource.signUpWithEmail(email, password)
         
         return when (authResult) {
             is AuthResult.Success -> {
-                // User created successfully, now save username to Firestore
-                val userWithUsername = authResult.data.copy(username = username)
-                val saveResult = firestoreDataSource.saveUserProfile(userWithUsername)
+                // User created successfully, now save username and userType to Firestore
+                val userWithProfile = authResult.data.copy(username = username, userType = userType)
+                val saveResult = firestoreDataSource.saveUserProfile(userWithProfile)
                 
                 when (saveResult) {
-                    is AuthResult.Success -> AuthResult.Success(userWithUsername)
+                    is AuthResult.Success -> AuthResult.Success(userWithProfile)
                     is AuthResult.Error -> {
-                        // User created but failed to save username - still return success
-                        // as user can login. Username can be saved later
-                        AuthResult.Success(userWithUsername)
+                        // User created but failed to save profile - still return success
+                        // as user can login. Profile can be saved later
+                        AuthResult.Success(userWithProfile)
                     }
-                    is AuthResult.Loading -> AuthResult.Success(userWithUsername)
+                    is AuthResult.Loading -> AuthResult.Success(userWithProfile)
                 }
             }
             is AuthResult.Error -> authResult
