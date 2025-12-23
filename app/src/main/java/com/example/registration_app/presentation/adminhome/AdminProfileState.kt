@@ -1,9 +1,6 @@
-package com.example.registration_app.presentation.studentprofile
+package com.example.registration_app.presentation.adminhome
 
-import com.example.registration_app.domain.model.StudentRegistration
-
-data class StudentProfileState(
-    val studentRegistration: StudentRegistration? = null,
+data class AdminProfileState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isEditMode: Boolean = false,
@@ -13,8 +10,8 @@ data class StudentProfileState(
     val editedPhoneNumber: String = "",
     val editedGender: String = "",
     val dateOfBirth: Long? = null,
-    val editedDateOfBirthDay: String = "",
-    val editedDateOfBirthMonth: String = "",
-    val editedDateOfBirthYear: String = "",
+    val dateOfBirthDay: String = "",
+    val dateOfBirthMonth: String = "",
+    val dateOfBirthYear: String = "",
     val isSaving: Boolean = false
 )

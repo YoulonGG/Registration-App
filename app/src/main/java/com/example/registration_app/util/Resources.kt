@@ -25,4 +25,5 @@ object DrawableResources {
     val finance_icon = R.drawable.finance_icon
     val business_it = R.drawable.business_it_icon
     val registration_form_banner = R.drawable.registration_form_banner
+    val payment_img = R.drawable.payment_sticker
 }

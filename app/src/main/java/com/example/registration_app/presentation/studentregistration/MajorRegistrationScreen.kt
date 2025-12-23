@@ -64,6 +64,7 @@ import com.example.registration_app.util.DrawableResources
 fun MajorRegistrationScreen(
     majorName: String,
     onNavigateBack: () -> Unit,
+    onNavigateToPayment: (com.example.registration_app.domain.model.StudentRegistration, String) -> Unit = { _, _ -> },
     onRegistrationSuccess: () -> Unit = {},
     viewModel: MajorRegistrationViewModel = hiltViewModel()
 ) {
@@ -73,10 +74,10 @@ fun MajorRegistrationScreen(
         viewModel.setMajorName(majorName)
     }
 
-    LaunchedEffect(state.isSuccess) {
-        if (state.isSuccess) {
-            onRegistrationSuccess()
-            viewModel.resetSuccessState()
+    LaunchedEffect(state.readyForPayment) {
+        if (state.readyForPayment && state.preparedRegistration != null) {
+            onNavigateToPayment(state.preparedRegistration!!, state.studentId)
+            viewModel.resetPaymentReady()
         }
     }
 

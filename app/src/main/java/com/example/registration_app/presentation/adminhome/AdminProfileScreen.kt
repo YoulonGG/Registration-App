@@ -1,8 +1,7 @@
-package com.example.registration_app.presentation.studentprofile
+package com.example.registration_app.presentation.adminhome
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,25 +22,22 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,9 +48,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -67,22 +73,22 @@ import com.example.registration_app.ui.theme.LoginTealGreen
 import com.example.registration_app.ui.theme.LoginWhite
 
 @Composable
-fun StudentProfileScreen(
+fun AdminProfileScreen(
     onNavigateBack: () -> Unit,
     onSignOut: () -> Unit,
-    viewModel: StudentProfileViewModel = hiltViewModel()
+    viewModel: AdminProfileViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.loadStudentProfile()
+        viewModel.loadAdminProfile()
     }
 
     // Show error dialog
     state.errorMessage?.let { error ->
         ErrorDialog(
-            title = if (state.isSaving) "Cannot Save Profile" else "Cannot Load Profile",
+            title = "Cannot Load Profile",
             message = error,
             onDismiss = {
                 viewModel.clearError()
@@ -98,7 +104,7 @@ fun StudentProfileScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            StudentProfileHeader(
+            AdminProfileHeader(
                 onNavigateBack = onNavigateBack,
                 onEditClick = { viewModel.enableEditMode() },
                 isEditMode = state.isEditMode
@@ -158,12 +164,12 @@ fun StudentProfileScreen(
 
                     // Show editable or read-only fields based on edit mode
                     if (state.isEditMode) {
-                        EditableProfileFields(
+                        EditableAdminProfileFields(
                             state = state,
                             viewModel = viewModel
                         )
                     } else {
-                        ReadOnlyProfileFields(
+                        ReadOnlyAdminProfileFields(
                             firstName = state.editedFirstName,
                             lastName = state.editedLastName,
                             username = state.editedUsername,
@@ -172,7 +178,6 @@ fun StudentProfileScreen(
                             dateOfBirth = state.dateOfBirth
                         )
                     }
-
 
                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -221,8 +226,7 @@ fun StudentProfileScreen(
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = LoginGoldenYellow
-                                ),
-                                enabled = !state.isSaving
+                                )
                             ) {
                                 if (state.isSaving) {
                                     CircularProgressIndicator(
@@ -338,7 +342,7 @@ fun StudentProfileScreen(
 }
 
 @Composable
-fun ReadOnlyProfileFields(
+fun ReadOnlyAdminProfileFields(
     firstName: String,
     lastName: String,
     username: String,
@@ -397,9 +401,9 @@ fun ReadOnlyProfileFields(
 }
 
 @Composable
-fun EditableProfileFields(
-    state: StudentProfileState,
-    viewModel: StudentProfileViewModel
+fun EditableAdminProfileFields(
+    state: AdminProfileState,
+    viewModel: AdminProfileViewModel
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -492,7 +496,7 @@ fun EditableProfileFields(
 }
 
 @Composable
-fun StudentProfileHeader(
+fun AdminProfileHeader(
     onNavigateBack: () -> Unit,
     onEditClick: () -> Unit,
     isEditMode: Boolean
@@ -525,7 +529,7 @@ fun StudentProfileHeader(
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = "Student profile",
+                text = "Admin profile",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = LoginWhite
@@ -761,30 +765,5 @@ fun GenderSelection(
                 color = HomeTextDark
             )
         }
-    }
-}
-
-// RoundedTopLeftShape - same as used in other screens
-class RoundedTopLeftShape(private val radius: androidx.compose.ui.unit.Dp) : androidx.compose.ui.graphics.Shape {
-    override fun createOutline(
-        size: androidx.compose.ui.geometry.Size,
-        layoutDirection: androidx.compose.ui.unit.LayoutDirection,
-        density: androidx.compose.ui.unit.Density
-    ): androidx.compose.ui.graphics.Outline {
-        val radiusPx = with(density) { radius.toPx() }
-        val path = androidx.compose.ui.graphics.Path().apply {
-            moveTo(0f, size.height)
-            lineTo(0f, radiusPx)
-            cubicTo(
-                x1 = 0f, y1 = radiusPx * 0.55f,
-                x2 = radiusPx * 0.45f, y2 = 0f,
-                x3 = radiusPx, y3 = 0f
-            )
-            lineTo(size.width, 0f)
-            lineTo(size.width, size.height)
-            lineTo(0f, size.height)
-            close()
-        }
-        return androidx.compose.ui.graphics.Outline.Generic(path)
     }
 }

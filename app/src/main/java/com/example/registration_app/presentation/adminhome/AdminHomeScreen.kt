@@ -36,6 +36,9 @@ import com.example.registration_app.util.DrawableResources
 @Composable
 fun AdminHomeScreen(
     onSignOut: () -> Unit,
+    onNavigateToStudentList: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToPaymentHistory: () -> Unit = {},
     viewModel: AdminHomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -97,8 +100,8 @@ fun AdminHomeScreen(
                     modifier = Modifier.weight(1f),
                     borderColor = HomeCardBorder.copy(alpha = 0.5f),
                     imagePainter = painterResource(DrawableResources.home_payment),
-                    text = "Student\nPayment",
-                    onClick = { /* TODO: Admin - Student Payment */ }
+                    text = "Payment",
+                    onClick = onNavigateToPaymentHistory
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 HomeContentCard(
@@ -106,7 +109,7 @@ fun AdminHomeScreen(
                     borderColor = HomeCardBorder.copy(alpha = 0.5f),
                     imagePainter = painterResource(DrawableResources.home_profile),
                     text = "Profile",
-                    onClick = { /* TODO: Admin - Profile */ }
+                    onClick = onNavigateToProfile
                 )
             }
 
@@ -114,7 +117,7 @@ fun AdminHomeScreen(
                 borderColor = HomeCardBorder.copy(alpha = 0.5f),
                 imagePainter = painterResource(DrawableResources.home_profile),
                 text = "List Student",
-                onClick = { /* TODO: Admin - List Student */ }
+                onClick = onNavigateToStudentList
             )
 
             Row(

@@ -7,4 +7,5 @@ interface StudentRegistrationRepository {
     suspend fun registerStudent(registration: StudentRegistration): AuthResult<Unit>
     suspend fun getStudentRegistrationByUserId(userId: String): AuthResult<StudentRegistration?>
     suspend fun updateStudentRegistration(userId: String, registration: StudentRegistration): AuthResult<Unit>
+    suspend fun getStudentsByMajor(major: String): AuthResult<List<StudentRegistration>>
 }

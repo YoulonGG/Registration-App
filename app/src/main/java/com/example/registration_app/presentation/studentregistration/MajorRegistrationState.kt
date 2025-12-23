@@ -14,5 +14,8 @@ data class MajorRegistrationState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isSuccess: Boolean = false,
-    val showDatePicker: Boolean = false
+    val showDatePicker: Boolean = false,
+    val readyForPayment: Boolean = false,
+    val preparedRegistration: com.example.registration_app.domain.model.StudentRegistration? = null,
+    val studentId: String = ""
 )

@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -116,19 +117,23 @@ fun OnboardingScreen(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Skip button
+            // Skip button with better visibility
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp, end = 24.dp),
+                    .padding(top = 32.dp, end = 24.dp),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onSkip) {
+                TextButton(
+                    onClick = onSkip,
+                    modifier = Modifier.padding(8.dp)
+                ) {
                     Text(
                         text = "Skip",
-                        color = LoginWhite.copy(alpha = 0.9f),
+                        color = LoginWhite,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 0.5.sp
                     )
                 }
             }
@@ -136,29 +141,32 @@ fun OnboardingScreen(
             // Pager
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.weight(1f)
-            ) { page ->
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) { pageIndex ->
                 OnboardingPageContent(
-                    page = pages[page],
-                    isActive = page == currentPage
+                    page = pages[pageIndex],
+                    isActive = pageIndex == currentPage,
+                    isLastPage = pageIndex == pages.size - 1
                 )
             }
 
             // Page indicators
             Row(
                 modifier = Modifier
-                    .padding(bottom = if (currentPage == pages.size - 1) 8.dp else 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    .padding(bottom = if (currentPage == pages.size - 1) 24.dp else 40.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 pages.forEachIndexed { index, _ ->
                     val isSelected = currentPage == index
                     Box(
                         modifier = Modifier
-                            .size(if (isSelected) 10.dp else 8.dp)
+                            .size(if (isSelected) 12.dp else 8.dp)
                             .clip(CircleShape)
                             .background(
-                                if (isSelected) LoginGoldenYellow else LoginWhite.copy(alpha = 0.5f)
+                                if (isSelected) LoginGoldenYellow else LoginWhite.copy(alpha = 0.6f)
                             )
                     )
                 }
@@ -166,27 +174,44 @@ fun OnboardingScreen(
 
             // Get Started button (only on last page)
             if (currentPage == pages.size - 1) {
-                Button(
-                    onClick = onGetStarted,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
-                        .padding(horizontal = 24.dp, vertical = 16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = LoginGoldenYellow
-                    )
+                        .padding(horizontal = 32.dp)
+                        .padding(bottom = 40.dp)
                 ) {
-                    Text(
-                        text = "Get Started",
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = LoginWhite,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
+                    Button(
+                        onClick = onGetStarted,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp)
+                            .shadow(
+                                elevation = 12.dp,
+                                shape = RoundedCornerShape(20.dp),
+                                spotColor = Color.Black.copy(alpha = 0.4f),
+                                ambientColor = Color.Black.copy(alpha = 0.3f)
+                            ),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = LoginGoldenYellow,
+                            contentColor = LoginWhite
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 0.dp,
+                            pressedElevation = 4.dp
+                        )
+                    ) {
+                        Text(
+                            text = "Get Started",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = LoginWhite,
+                            letterSpacing = 1.sp
+                        )
+                    }
                 }
             } else {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }
@@ -195,7 +220,8 @@ fun OnboardingScreen(
 @Composable
 fun OnboardingPageContent(
     page: OnboardingPage,
-    isActive: Boolean
+    isActive: Boolean,
+    isLastPage: Boolean = false
 ) {
     // Animation for content appearance
     val alpha by animateFloatAsState(
@@ -210,60 +236,74 @@ fun OnboardingPageContent(
         label = "scale"
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 32.dp)
-            .alpha(alpha),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // Icon or Image
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 40.dp, vertical = 20.dp)
+                .alpha(alpha),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+        // Icon or Image with better styling
         Box(
             modifier = Modifier
-                .size(180.dp)
-                .scale(scale),
+                .size(200.dp)
+                .scale(scale)
+                .shadow(
+                    elevation = 12.dp,
+                    shape = CircleShape,
+                    spotColor = Color.Black.copy(alpha = 0.2f),
+                    ambientColor = Color.Black.copy(alpha = 0.1f)
+                )
+                .background(
+                    color = LoginWhite.copy(alpha = 0.15f),
+                    shape = CircleShape
+                ),
             contentAlignment = Alignment.Center
         ) {
             if (page.icon != null) {
                 Icon(
                     imageVector = page.icon,
                     contentDescription = null,
-                    modifier = Modifier.size(120.dp),
-                    tint = LoginWhite.copy(alpha = 0.9f)
+                    modifier = Modifier.size(100.dp),
+                    tint = LoginWhite
                 )
             } else {
                 Image(
                     painter = painterResource(id = page.imageRes),
                     contentDescription = null,
-                    modifier = Modifier.size(180.dp)
+                    modifier = Modifier.size(160.dp)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(56.dp))
+        Spacer(modifier = Modifier.height(64.dp))
 
         Text(
             text = page.title,
-            fontSize = 28.sp,
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = LoginWhite,
             textAlign = TextAlign.Center,
-            lineHeight = 36.sp,
-            letterSpacing = 0.5.sp
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = page.description,
-            fontSize = 17.sp,
-            color = LoginWhite.copy(alpha = 0.95f),
-            textAlign = TextAlign.Center,
-            lineHeight = 26.sp,
+            lineHeight = 40.sp,
+            letterSpacing = 0.8.sp,
             modifier = Modifier.padding(horizontal = 8.dp)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        Text(
+            text = page.description,
+            fontSize = 16.sp,
+            color = LoginWhite.copy(alpha = 0.9f),
+            textAlign = TextAlign.Center,
+            lineHeight = 24.sp,
+            modifier = Modifier.padding(horizontal = 12.dp)
+        )
+        
+        // Add extra spacing on last page to ensure button is visible
+        if (isLastPage) {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }

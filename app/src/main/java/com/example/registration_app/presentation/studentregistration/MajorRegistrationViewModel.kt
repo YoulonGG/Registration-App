@@ -130,6 +130,9 @@ class MajorRegistrationViewModel @Inject constructor(
             val month = (calendar.get(java.util.Calendar.MONTH) + 1).toString()
             val year = calendar.get(java.util.Calendar.YEAR).toString()
 
+            // Generate student ID (format: 000XXXX)
+            val studentId = String.format("000%04d", System.currentTimeMillis() % 10000)
+
             val registration = StudentRegistration(
                 studentName = currentState.studentName.trim(),
                 email = currentState.email.trim(),
@@ -144,26 +147,22 @@ class MajorRegistrationViewModel @Inject constructor(
                 userId = userId
             )
 
-            when (val result = registerStudentUseCase(registration)) {
-                is AuthResult.Success -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        isSuccess = true,
-                        errorMessage = null
-                    )
-                }
-                is AuthResult.Error -> {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message,
-                        isSuccess = false
-                    )
-                }
-                is AuthResult.Loading -> {
-                    // Already handled
-                }
-            }
+            // Prepare for payment - don't save registration yet
+            _state.value = _state.value.copy(
+                isLoading = false,
+                readyForPayment = true,
+                preparedRegistration = registration,
+                studentId = studentId
+            )
         }
+    }
+
+    fun resetPaymentReady() {
+        _state.value = _state.value.copy(
+            readyForPayment = false,
+            preparedRegistration = null,
+            studentId = ""
+        )
     }
 
     fun resetSuccessState() {

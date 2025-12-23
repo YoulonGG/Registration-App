@@ -79,4 +79,12 @@ object UseCaseModule {
     ): RegisterStudentUseCase {
         return RegisterStudentUseCase(studentRegistrationRepository)
     }
+
+    @Provides
+    @Singleton
+    fun provideGetStudentsByMajorUseCase(
+        studentRegistrationRepository: StudentRegistrationRepository
+    ): GetStudentsByMajorUseCase {
+        return GetStudentsByMajorUseCase(studentRegistrationRepository)
+    }
 }

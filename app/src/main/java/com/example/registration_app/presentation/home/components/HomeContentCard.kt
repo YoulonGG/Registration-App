@@ -65,8 +65,10 @@ fun HomeContentCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(120.dp)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Image(
                 painter = imagePainter,
@@ -80,7 +82,8 @@ fun HomeContentCard(
                 text = text,
                 textAlign = TextAlign.Center,
                 color = Color.Black,
-                fontSize = 12.sp
+                fontSize = 12.sp,
+                maxLines = 2
             )
         }
     }
