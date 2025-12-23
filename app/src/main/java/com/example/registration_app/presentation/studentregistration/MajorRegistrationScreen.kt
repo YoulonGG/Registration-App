@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -288,22 +289,44 @@ fun MajorRegistrationScreen(
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        // Course
+                        // Major (Read-only display)
                         Text(
-                            text = "Course",
+                            text = "Major",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = HomeTextDark,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        RegistrationTextField(
-                            value = state.course,
-                            onValueChange = { viewModel.updateCourse(it) },
-                            placeholder = "Your Course",
-                            icon = Icons.Default.Person,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = Color(0xFFE0F2F1),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .padding(horizontal = 16.dp, vertical = 16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = majorName,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = HomeTextDark,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = "Major",
+                                    tint = LoginTealGreen,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -321,17 +344,28 @@ fun MajorRegistrationScreen(
                                 ),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = LoginGoldenYellow
+                                containerColor = LoginGoldenYellow,
+                                disabledContainerColor = LoginGoldenYellow,
+                                contentColor = LoginWhite,
+                                disabledContentColor = LoginWhite
                             ),
                             enabled = !state.isLoading
                         ) {
-                            Text(
-                                text = "Submit Registration",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = LoginWhite,
-                                letterSpacing = 0.5.sp
-                            )
+                            if (state.isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = LoginWhite,
+                                    strokeWidth = 2.5.dp
+                                )
+                            } else {
+                                Text(
+                                    text = "Submit Registration",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = LoginWhite,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))

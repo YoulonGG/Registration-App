@@ -84,6 +84,8 @@ class MajorRegistrationViewModel @Inject constructor(
 
     fun setMajorName(major: String) {
         majorName = major
+        // Automatically set course to major name
+        _state.value = _state.value.copy(course = major)
     }
 
     fun submitRegistration() {
