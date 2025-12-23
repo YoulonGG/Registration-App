@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.registration_app.presentation.common.ErrorDialog
+import com.example.registration_app.presentation.common.SuccessDialog
 import com.example.registration_app.presentation.studentregistration.components.RegistrationTextField
 import com.example.registration_app.ui.theme.HomeTextDark
 import com.example.registration_app.ui.theme.LoginGoldenYellow
@@ -74,11 +75,23 @@ fun MajorRegistrationScreen(
         viewModel.setMajorName(majorName)
     }
 
-    LaunchedEffect(state.readyForPayment) {
-        if (state.readyForPayment && state.preparedRegistration != null) {
-            onNavigateToPayment(state.preparedRegistration!!, state.studentId)
-            viewModel.resetPaymentReady()
+    LaunchedEffect(state.isSuccess) {
+        if (state.isSuccess) {
+            viewModel.resetSuccessState()
+            onRegistrationSuccess()
         }
+    }
+
+    // Show success dialog
+    if (state.isSuccess) {
+        SuccessDialog(
+            title = "Registration Successful",
+            message = "Your registration has been submitted successfully!",
+            onDismiss = {
+                viewModel.resetSuccessState()
+                onRegistrationSuccess()
+            }
+        )
     }
 
     // Show error dialog

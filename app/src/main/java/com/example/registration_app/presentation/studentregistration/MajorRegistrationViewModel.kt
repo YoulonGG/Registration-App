@@ -147,13 +147,28 @@ class MajorRegistrationViewModel @Inject constructor(
                 userId = userId
             )
 
-            // Prepare for payment - don't save registration yet
-            _state.value = _state.value.copy(
-                isLoading = false,
-                readyForPayment = true,
-                preparedRegistration = registration,
-                studentId = studentId
-            )
+            // Save registration immediately
+            when (val result = registerStudentUseCase(registration)) {
+                is AuthResult.Success -> {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        isSuccess = true,
+                        errorMessage = null
+                    )
+                }
+                is AuthResult.Error -> {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = result.message ?: "Failed to register student"
+                    )
+                }
+                else -> {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        errorMessage = "Unknown error occurred"
+                    )
+                }
+            }
         }
     }
 

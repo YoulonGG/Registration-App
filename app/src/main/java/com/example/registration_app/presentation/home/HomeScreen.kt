@@ -45,6 +45,7 @@ fun HomeScreen(
     onNavigateToStudentRegistration: () -> Unit = {},
     onNavigateToStudentProfile: () -> Unit = {},
     onNavigateToPaymentHistory: () -> Unit = {},
+    onNavigateToPayment: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -105,7 +106,7 @@ fun HomeScreen(
                     borderColor = com.example.registration_app.ui.theme.HomeCardBorder.copy(alpha = 0.5f),
                     imagePainter = painterResource(DrawableResources.home_payment),
                     text = "Payment",
-                    onClick = onNavigateToPaymentHistory
+                    onClick = onNavigateToPayment
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 HomeContentCard(

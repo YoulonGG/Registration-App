@@ -1,4 +1,4 @@
-package com.example.registration_app.presentation.paymenthistory
+package com.example.registration_app.presentation.transactionhistory
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,19 +50,17 @@ import com.example.registration_app.presentation.common.ErrorDialog
 import com.example.registration_app.ui.theme.HomeTextDark
 import com.example.registration_app.ui.theme.LoginTealGreen
 import com.example.registration_app.ui.theme.LoginWhite
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @Composable
-fun PaymentHistoryScreen(
+fun TransactionHistoryScreen(
     isAdmin: Boolean = false,
     onNavigateBack: () -> Unit,
-    viewModel: PaymentHistoryViewModel = hiltViewModel()
+    viewModel: TransactionHistoryViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(isAdmin) {
-        viewModel.loadPaymentHistory(isAdmin)
+        viewModel.loadTransactionHistory(isAdmin)
     }
 
     state.errorMessage?.let { error ->
@@ -84,8 +81,8 @@ fun PaymentHistoryScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            PaymentHistoryHeader(
-                title = if (isAdmin) "Transaction List" else "Payment History",
+            TransactionHistoryHeader(
+                title = if (isAdmin) "Transaction List" else "Transaction History",
                 onNavigateBack = onNavigateBack
             )
 
@@ -128,7 +125,7 @@ fun PaymentHistoryScreen(
                                 modifier = Modifier.padding(24.dp)
                             ) {
                                 Text(
-                                    text = "Error loading payment history",
+                                    text = "Error loading transaction history",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFFF44336),
@@ -152,14 +149,14 @@ fun PaymentHistoryScreen(
                                 modifier = Modifier.padding(24.dp)
                             ) {
                                 Text(
-                                    text = "No payment history found",
+                                    text = "No transaction history found",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = HomeTextDark.copy(alpha = 0.8f),
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
                                 Text(
-                                    text = if (isAdmin) "No payment transactions have been made yet." else "You haven't made any payments yet.",
+                                    text = if (isAdmin) "No payment transactions have been made yet." else "You haven't made any transactions yet.",
                                     fontSize = 14.sp,
                                     color = HomeTextDark.copy(alpha = 0.6f),
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -180,15 +177,13 @@ fun PaymentHistoryScreen(
                                 key = { it.id }
                             ) { transaction ->
                                 if (isAdmin) {
-                                    PaymentTransactionCard(
+                                    AdminTransactionCard(
                                         transaction = transaction,
-                                        isAdmin = isAdmin,
                                         onDelete = { viewModel.deleteTransaction(transaction.id, isAdmin) },
-                                        isDeleting = state.isDeleting,
-                                        showDeleteButton = true
+                                        isDeleting = state.isDeleting
                                     )
                                 } else {
-                                    StudentPaymentCard(
+                                    StudentTransactionCard(
                                         transaction = transaction,
                                         onDelete = { viewModel.deleteTransaction(transaction.id, isAdmin) },
                                         isDeleting = state.isDeleting
@@ -204,7 +199,7 @@ fun PaymentHistoryScreen(
 }
 
 @Composable
-fun PaymentHistoryHeader(
+fun TransactionHistoryHeader(
     title: String,
     onNavigateBack: () -> Unit
 ) {
@@ -250,16 +245,13 @@ fun PaymentHistoryHeader(
 }
 
 @Composable
-fun PaymentTransactionCard(
+fun AdminTransactionCard(
     transaction: com.example.registration_app.domain.model.PaymentTransaction,
-    isAdmin: Boolean = false,
     onDelete: () -> Unit = {},
-    isDeleting: Boolean = false,
-    showDeleteButton: Boolean = true
+    isDeleting: Boolean = false
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     
-    // Determine status for display
     val isPaid = transaction.status == PaymentStatus.SUCCESS
     val isFailed = transaction.status == PaymentStatus.FAILED
     val statusText = when (transaction.status) {
@@ -268,8 +260,8 @@ fun PaymentTransactionCard(
         PaymentStatus.PENDING -> "Pending"
     }
     val statusIcon = if (isPaid) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
-    val statusIconColor = if (isPaid) Color(0xFF2196F3) else Color(0xFFF44336) // Blue for Paid, Red for Not Pay/Unpaid
-    val statusTextColor = if (isFailed) Color(0xFFF44336) else HomeTextDark.copy(alpha = 0.7f) // Red for Unpaid, gray for others
+    val statusIconColor = if (isPaid) Color(0xFF2196F3) else Color(0xFFF44336)
+    val statusTextColor = if (isFailed) Color(0xFFF44336) else HomeTextDark.copy(alpha = 0.7f)
     
     Card(
         modifier = Modifier
@@ -280,7 +272,7 @@ fun PaymentTransactionCard(
             ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF5F5F5) // Light gray background
+            containerColor = Color(0xFFF5F5F5)
         )
     ) {
         Row(
@@ -290,7 +282,6 @@ fun PaymentTransactionCard(
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Status Icon (Left)
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -310,48 +301,24 @@ fun PaymentTransactionCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // User Information (Middle)
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                if (isAdmin) {
-                    Text(
-                        text = transaction.studentName,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = HomeTextDark
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = statusText,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = statusTextColor
-                    )
-                } else {
-                    Text(
-                        text = transaction.major,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = HomeTextDark
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = transaction.course,
-                        fontSize = 12.sp,
-                        color = HomeTextDark.copy(alpha = 0.6f)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = statusText,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = statusTextColor
-                    )
-                }
+                Text(
+                    text = transaction.studentName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = HomeTextDark
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = statusText,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = statusTextColor
+                )
             }
 
-            // Payment Amount (Right)
             Text(
                 text = "$${transaction.price.toInt()}",
                 fontSize = 16.sp,
@@ -359,27 +326,24 @@ fun PaymentTransactionCard(
                 color = HomeTextDark
             )
 
-            // Delete Button (show based on showDeleteButton parameter)
-            if (showDeleteButton) {
-                Spacer(modifier = Modifier.width(8.dp))
-                IconButton(
-                    onClick = { showDeleteDialog = true },
-                    modifier = Modifier.size(40.dp),
-                    enabled = !isDeleting
-                ) {
-                    if (isDeleting) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = Color(0xFFF44336)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            tint = Color(0xFFF44336),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(
+                onClick = { showDeleteDialog = true },
+                modifier = Modifier.size(40.dp),
+                enabled = !isDeleting
+            ) {
+                if (isDeleting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color(0xFFF44336)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = Color(0xFFF44336),
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
@@ -396,7 +360,7 @@ fun PaymentTransactionCard(
             },
             text = {
                 Text(
-                    text = "Are you sure you want to delete this payment transaction? This action cannot be undone.",
+                    text = "Are you sure you want to delete this transaction? This action cannot be undone.",
                     fontSize = 14.sp
                 )
             },
@@ -425,7 +389,7 @@ fun PaymentTransactionCard(
 }
 
 @Composable
-fun StudentPaymentCard(
+fun StudentTransactionCard(
     transaction: com.example.registration_app.domain.model.PaymentTransaction,
     onDelete: () -> Unit = {},
     isDeleting: Boolean = false
@@ -458,7 +422,6 @@ fun StudentPaymentCard(
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-            // Header Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
@@ -481,7 +444,6 @@ fun StudentPaymentCard(
                     )
                 }
                 
-                // Status Badge
                 Box(
                     modifier = Modifier
                         .background(
@@ -501,7 +463,6 @@ fun StudentPaymentCard(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Divider
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -511,7 +472,6 @@ fun StudentPaymentCard(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Footer Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
@@ -567,7 +527,7 @@ fun StudentPaymentCard(
             },
             text = {
                 Text(
-                    text = "Are you sure you want to delete this payment transaction? This action cannot be undone.",
+                    text = "Are you sure you want to delete this transaction? This action cannot be undone.",
                     fontSize = 14.sp
                 )
             },
@@ -593,9 +553,4 @@ fun StudentPaymentCard(
             }
         )
     }
-}
-
-fun formatDate(timestamp: Long): String {
-    val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
-    return sdf.format(java.util.Date(timestamp))
 }

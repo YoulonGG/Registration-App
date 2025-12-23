@@ -39,6 +39,7 @@ fun AdminHomeScreen(
     onNavigateToStudentList: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
     onNavigateToPaymentHistory: () -> Unit = {},
+    onNavigateToPayment: () -> Unit = {},
     viewModel: AdminHomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()

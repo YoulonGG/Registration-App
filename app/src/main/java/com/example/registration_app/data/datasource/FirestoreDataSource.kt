@@ -224,6 +224,44 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    suspend fun getAllStudentRegistrationsByUserId(userId: String): AuthResult<List<StudentRegistration>> {
+        return try {
+            if (userId.isBlank()) {
+                return AuthResult.Error("User ID is required")
+            }
+            
+            val querySnapshot = firestore.collection(STUDENT_REGISTRATIONS_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+            
+            val registrations = querySnapshot.documents.mapNotNull { document ->
+                try {
+                    StudentRegistration(
+                        studentName = document.getString("studentName") ?: "",
+                        email = document.getString("email") ?: "",
+                        gender = document.getString("gender") ?: "",
+                        phoneNumber = document.getString("phoneNumber") ?: "",
+                        address = document.getString("address") ?: "",
+                        dateOfBirthDay = document.getString("dateOfBirthDay") ?: "",
+                        dateOfBirthMonth = document.getString("dateOfBirthMonth") ?: "",
+                        dateOfBirthYear = document.getString("dateOfBirthYear") ?: "",
+                        course = document.getString("course") ?: "",
+                        major = document.getString("major") ?: "",
+                        userId = document.getString("userId"),
+                        registrationDate = document.getLong("registrationDate") ?: 0L
+                    )
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            
+            AuthResult.Success(registrations)
+        } catch (e: Exception) {
+            AuthResult.Error(e.message ?: "Cannot load registrations. Please try again.")
+        }
+    }
+
     suspend fun updateStudentRegistration(userId: String, registration: StudentRegistration): AuthResult<Unit> {
         return try {
             val querySnapshot = firestore.collection(STUDENT_REGISTRATIONS_COLLECTION)
@@ -428,6 +466,27 @@ class FirestoreDataSource @Inject constructor(
             AuthResult.Success(sortedTransactions)
         } catch (e: Exception) {
             AuthResult.Error(e.message ?: "Cannot load payment transactions. Please try again.")
+        }
+    }
+
+    suspend fun checkExistingPayment(userId: String, major: String, course: String): AuthResult<Boolean> {
+        return try {
+            if (userId.isBlank() || major.isBlank() || course.isBlank()) {
+                return AuthResult.Error("Invalid payment information")
+            }
+            
+            val querySnapshot = firestore.collection(PAYMENT_TRANSACTIONS_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("major", major)
+                .whereEqualTo("course", course)
+                .whereEqualTo("status", PaymentStatus.SUCCESS.name)
+                .limit(1)
+                .get()
+                .await()
+            
+            AuthResult.Success(!querySnapshot.isEmpty)
+        } catch (e: Exception) {
+            AuthResult.Error(e.message ?: "Cannot check existing payment. Please try again.")
         }
     }
 

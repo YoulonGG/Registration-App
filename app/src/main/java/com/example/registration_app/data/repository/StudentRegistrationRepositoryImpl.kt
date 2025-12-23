@@ -17,6 +17,10 @@ class StudentRegistrationRepositoryImpl @Inject constructor(
         return firestoreDataSource.getStudentRegistrationByUserId(userId)
     }
 
+    override suspend fun getAllStudentRegistrationsByUserId(userId: String): AuthResult<List<StudentRegistration>> {
+        return firestoreDataSource.getAllStudentRegistrationsByUserId(userId)
+    }
+
     override suspend fun updateStudentRegistration(userId: String, registration: StudentRegistration): AuthResult<Unit> {
         return firestoreDataSource.updateStudentRegistration(userId, registration)
     }

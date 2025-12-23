@@ -6,5 +6,9 @@ data class PaymentState(
     val transaction: PaymentTransaction? = null,
     val isLoading: Boolean = false,
     val isProcessing: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val selectedMajor: String = "",
+    val selectedYear: String = "",
+    val availableMajors: List<String> = emptyList(),
+    val isLoadingMajors: Boolean = false
 )

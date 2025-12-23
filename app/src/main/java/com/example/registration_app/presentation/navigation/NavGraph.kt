@@ -24,8 +24,10 @@ import com.example.registration_app.presentation.studentprofile.StudentProfileSc
 import com.example.registration_app.presentation.studentregistration.MajorRegistrationScreen
 import com.example.registration_app.presentation.studentregistration.StudentRegistrationRoute
 import com.example.registration_app.presentation.payment.PaymentScreen
+import com.example.registration_app.presentation.paymentmethod.PaymentMethodScreen
 import com.example.registration_app.presentation.registrationsuccess.RegistrationSuccessScreen
 import com.example.registration_app.presentation.paymenthistory.PaymentHistoryScreen
+import com.example.registration_app.presentation.transactionhistory.TransactionHistoryScreen
 import com.example.registration_app.domain.model.StudentRegistration
 import com.example.registration_app.util.PreferencesManager
 import kotlinx.coroutines.launch
@@ -51,24 +53,15 @@ sealed class Screen(val route: String) {
         fun createRoute(majorName: String) = "admin_student_list/$majorName"
     }
     object AdminProfile : Screen("admin_profile")
-    object Payment : Screen("payment") {
-        fun createRoute(
-            studentId: String,
-            studentName: String,
-            email: String,
-            gender: String,
-            phoneNumber: String,
-            address: String,
-            dateOfBirthDay: String,
-            dateOfBirthMonth: String,
-            dateOfBirthYear: String,
-            course: String,
-            major: String
-        ) = "payment/$studentId/$studentName/$email/$gender/$phoneNumber/$address/$dateOfBirthDay/$dateOfBirthMonth/$dateOfBirthYear/$course/$major"
+    object Payment : Screen("payment")
+    object PaymentMethod : Screen("payment_method") {
+        fun createRoute(major: String, year: String) = "payment_method/$major/$year"
     }
     object RegistrationSuccess : Screen("registration_success")
     object PaymentHistory : Screen("payment_history")
     object AdminPaymentHistory : Screen("admin_payment_history")
+    object TransactionHistory : Screen("transaction_history")
+    object AdminTransactionHistory : Screen("admin_transaction_history")
 }
 
 @Composable
@@ -172,7 +165,6 @@ fun NavGraph(
                     navController.navigate(Screen.Login.route)
                 },
                 onSignUpSuccess = {
-                    // Always route to student home (signup is student-only)
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
@@ -197,7 +189,10 @@ fun NavGraph(
                     navController.navigate(Screen.StudentProfile.route)
                 },
                 onNavigateToPaymentHistory = {
-                    navController.navigate(Screen.PaymentHistory.route)
+                    navController.navigate(Screen.TransactionHistory.route)
+                },
+                onNavigateToPayment = {
+                    navController.navigate(Screen.Payment.route)
                 }
             )
         }
@@ -216,7 +211,10 @@ fun NavGraph(
                     navController.navigate(Screen.AdminProfile.route)
                 },
                 onNavigateToPaymentHistory = {
-                    navController.navigate(Screen.AdminPaymentHistory.route)
+                    navController.navigate(Screen.AdminTransactionHistory.route)
+                },
+                onNavigateToPayment = {
+                    navController.navigate(Screen.Payment.route)
                 }
             )
         }
@@ -285,76 +283,42 @@ fun NavGraph(
                 onNavigateBack = {
                     navController.popBackStack()
                 },
-                onNavigateToPayment = { registration, studentId ->
-                    // URL encode the arguments to handle special characters
-                    fun encode(str: String) = java.net.URLEncoder.encode(str, "UTF-8")
-                    val route = Screen.Payment.createRoute(
-                        studentId = encode(studentId),
-                        studentName = encode(registration.studentName),
-                        email = encode(registration.email),
-                        gender = encode(registration.gender),
-                        phoneNumber = encode(registration.phoneNumber),
-                        address = encode(registration.address),
-                        dateOfBirthDay = encode(registration.dateOfBirthDay),
-                        dateOfBirthMonth = encode(registration.dateOfBirthMonth),
-                        dateOfBirthYear = encode(registration.dateOfBirthYear),
-                        course = encode(registration.course),
-                        major = encode(registration.major)
-                    )
-                    navController.navigate(route)
-                },
+                onNavigateToPayment = { _, _ -> },
                 onRegistrationSuccess = {
                     navController.popBackStack()
                 }
             )
         }
 
+        composable(Screen.Payment.route) {
+            PaymentScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToPaymentMethod = { major, year ->
+                    fun encode(str: String) = java.net.URLEncoder.encode(str, "UTF-8")
+                    navController.navigate(Screen.PaymentMethod.createRoute(encode(major), encode(year)))
+                },
+                onNavigateToTransactionHistory = {
+                    navController.navigate(Screen.TransactionHistory.route)
+                }
+            )
+        }
+
         composable(
-            route = "payment/{studentId}/{studentName}/{email}/{gender}/{phoneNumber}/{address}/{dateOfBirthDay}/{dateOfBirthMonth}/{dateOfBirthYear}/{course}/{major}",
+            route = "payment_method/{major}/{year}",
             arguments = listOf(
-                navArgument("studentId") { type = NavType.StringType },
-                navArgument("studentName") { type = NavType.StringType },
-                navArgument("email") { type = NavType.StringType },
-                navArgument("gender") { type = NavType.StringType },
-                navArgument("phoneNumber") { type = NavType.StringType },
-                navArgument("address") { type = NavType.StringType },
-                navArgument("dateOfBirthDay") { type = NavType.StringType },
-                navArgument("dateOfBirthMonth") { type = NavType.StringType },
-                navArgument("dateOfBirthYear") { type = NavType.StringType },
-                navArgument("course") { type = NavType.StringType },
-                navArgument("major") { type = NavType.StringType }
+                navArgument("major") { type = NavType.StringType },
+                navArgument("year") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            // URL decode the arguments
             fun decode(str: String) = java.net.URLDecoder.decode(str, "UTF-8")
-            val studentId = decode(backStackEntry.arguments?.getString("studentId") ?: "")
-            val studentName = decode(backStackEntry.arguments?.getString("studentName") ?: "")
-            val email = decode(backStackEntry.arguments?.getString("email") ?: "")
-            val gender = decode(backStackEntry.arguments?.getString("gender") ?: "")
-            val phoneNumber = decode(backStackEntry.arguments?.getString("phoneNumber") ?: "")
-            val address = decode(backStackEntry.arguments?.getString("address") ?: "")
-            val dateOfBirthDay = decode(backStackEntry.arguments?.getString("dateOfBirthDay") ?: "")
-            val dateOfBirthMonth = decode(backStackEntry.arguments?.getString("dateOfBirthMonth") ?: "")
-            val dateOfBirthYear = decode(backStackEntry.arguments?.getString("dateOfBirthYear") ?: "")
-            val course = decode(backStackEntry.arguments?.getString("course") ?: "")
             val major = decode(backStackEntry.arguments?.getString("major") ?: "")
-
-            val registration = StudentRegistration(
-                studentName = studentName,
-                email = email,
-                gender = gender,
-                phoneNumber = phoneNumber,
-                address = address,
-                dateOfBirthDay = dateOfBirthDay,
-                dateOfBirthMonth = dateOfBirthMonth,
-                dateOfBirthYear = dateOfBirthYear,
-                course = course,
-                major = major
-            )
-
-            PaymentScreen(
-                registration = registration,
-                studentId = studentId,
+            val year = decode(backStackEntry.arguments?.getString("year") ?: "")
+            
+            PaymentMethodScreen(
+                major = major,
+                year = year,
                 onNavigateBack = {
                     navController.popBackStack()
                 },
@@ -387,6 +351,24 @@ fun NavGraph(
 
         composable(Screen.AdminPaymentHistory.route) {
             PaymentHistoryScreen(
+                isAdmin = true,
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.TransactionHistory.route) {
+            TransactionHistoryScreen(
+                isAdmin = false,
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.AdminTransactionHistory.route) {
+            TransactionHistoryScreen(
                 isAdmin = true,
                 onNavigateBack = {
                     navController.popBackStack()
