@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
                                     Screen.Home.route
                                 }
                             } else {
-                                Screen.UserTypeSelection.route
+                                Screen.Login.route
                             }
                         } else {
                             Screen.Onboarding.route

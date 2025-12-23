@@ -72,16 +72,16 @@ import com.example.registration_app.util.DrawableResources
 
 @Composable
 fun SignUpScreen(
-    userType: UserType,
-    onNavigateToLogin: (UserType) -> Unit,
+    onNavigateToLogin: () -> Unit,
     onSignUpSuccess: () -> Unit,
     onNavigateBack: () -> Unit = {},
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(userType) {
-        viewModel.handleIntent(SignUpIntent.UpdateUserType(userType))
+    // Always set userType to STUDENT for signup
+    LaunchedEffect(Unit) {
+        viewModel.handleIntent(SignUpIntent.UpdateUserType(UserType.STUDENT))
     }
 
     LaunchedEffect(state.isSuccess) {
@@ -110,7 +110,6 @@ fun SignUpScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             SignUpHeader(
-                userType = userType,
                 onNavigateBack = onNavigateBack
             )
 
@@ -239,7 +238,7 @@ fun SignUpScreen(
                             fontSize = 14.sp,
                             modifier = Modifier
                                 .padding(bottom = 32.dp)
-                                .clickable { onNavigateToLogin(userType) },
+                                .clickable { onNavigateToLogin() },
                             textAlign = TextAlign.Center
                         )
                     }
@@ -251,7 +250,6 @@ fun SignUpScreen(
 
 @Composable
 fun SignUpHeader(
-    userType: UserType,
     onNavigateBack: () -> Unit
 ) {
     Column(
@@ -282,7 +280,7 @@ fun SignUpHeader(
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = "Create ${userType.name} Account",
+                text = "Sign Up",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = LoginWhite

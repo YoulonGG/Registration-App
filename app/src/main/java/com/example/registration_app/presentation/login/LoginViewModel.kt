@@ -20,10 +20,6 @@ class LoginViewModel @Inject constructor(
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state.asStateFlow()
 
-    fun setExpectedUserType(userType: UserType) {
-        _state.value = _state.value.copy(expectedUserType = userType)
-    }
-
     fun handleIntent(intent: LoginIntent) {
         when (intent) {
             is LoginIntent.UpdateEmail -> {
@@ -69,39 +65,21 @@ class LoginViewModel @Inject constructor(
 
             when (val result = signInUseCase(currentState.email, currentState.password)) {
                 is AuthResult.Success -> {
-                    // Validate user type if expected user type is set
                     val user = result.data
-                    if (currentState.expectedUserType != null) {
-                        when {
-                            user.userType == null -> {
-                                _state.value = _state.value.copy(
-                                    isLoading = false,
-                                    errorMessage = "Your account type is missing. Please contact support or create a new account.",
-                                    isSuccess = false
-                                )
-                            }
-                            user.userType != currentState.expectedUserType -> {
-                                val accountType = if (user.userType == UserType.ADMIN) "admin" else "student"
-                                _state.value = _state.value.copy(
-                                    isLoading = false,
-                                    errorMessage = "This account is for ${accountType}. Please use the ${accountType} login.",
-                                    isSuccess = false
-                                )
-                            }
-                            else -> {
-                                _state.value = _state.value.copy(
-                                    isLoading = false,
-                                    isSuccess = true,
-                                    errorMessage = null
-                                )
-                            }
-                        }
+                    // Validate user has a userType
+                    if (user.userType == null) {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            errorMessage = "Your account type is missing. Please contact support.",
+                            isSuccess = false
+                        )
                     } else {
-                        // No expected user type set, allow login
+                        // Login successful - store userType for navigation
                         _state.value = _state.value.copy(
                             isLoading = false,
                             isSuccess = true,
-                            errorMessage = null
+                            errorMessage = null,
+                            userType = user.userType
                         )
                     }
                 }
@@ -122,6 +100,6 @@ class LoginViewModel @Inject constructor(
     }
 
     fun resetSuccessState() {
-        _state.value = _state.value.copy(isSuccess = false)
+        _state.value = _state.value.copy(isSuccess = false, userType = null)
     }
 }

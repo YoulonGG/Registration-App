@@ -253,9 +253,15 @@ fun PaymentTransactionCard(
     
     // Determine status for display
     val isPaid = transaction.status == PaymentStatus.SUCCESS
-    val statusText = if (isPaid) "Paid" else "Not Pay"
+    val isFailed = transaction.status == PaymentStatus.FAILED
+    val statusText = when (transaction.status) {
+        PaymentStatus.SUCCESS -> "Paid"
+        PaymentStatus.FAILED -> "Unpaid"
+        PaymentStatus.PENDING -> "Pending"
+    }
     val statusIcon = if (isPaid) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
-    val statusIconColor = if (isPaid) Color(0xFF2196F3) else Color(0xFFF44336) // Blue for Paid, Red for Not Pay
+    val statusIconColor = if (isPaid) Color(0xFF2196F3) else Color(0xFFF44336) // Blue for Paid, Red for Not Pay/Unpaid
+    val statusTextColor = if (isFailed) Color(0xFFF44336) else HomeTextDark.copy(alpha = 0.7f) // Red for Unpaid, gray for others
     
     Card(
         modifier = Modifier
@@ -312,7 +318,7 @@ fun PaymentTransactionCard(
                         text = statusText,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
-                        color = HomeTextDark.copy(alpha = 0.7f)
+                        color = statusTextColor
                     )
                 } else {
                     Text(
@@ -326,6 +332,13 @@ fun PaymentTransactionCard(
                         text = transaction.course,
                         fontSize = 12.sp,
                         color = HomeTextDark.copy(alpha = 0.6f)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = statusText,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = statusTextColor
                     )
                 }
             }

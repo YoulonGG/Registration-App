@@ -3,6 +3,7 @@ package com.example.registration_app.presentation.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.registration_app.domain.model.UserType
 import com.example.registration_app.presentation.common.ErrorDialog
 import com.example.registration_app.ui.theme.LoginDarkGray
 import com.example.registration_app.ui.theme.LoginGoldenYellow
@@ -71,22 +71,17 @@ import com.example.registration_app.util.DrawableResources
 
 @Composable
 fun LoginScreen(
-    userType: UserType,
-    onNavigateToSignUp: (UserType) -> Unit,
+    onNavigateToSignUp: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
-    onLoginSuccess: () -> Unit,
-    onNavigateBack: () -> Unit = {},
+    onLoginSuccess: (com.example.registration_app.domain.model.UserType) -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(userType) {
-        viewModel.setExpectedUserType(userType)
-    }
-
-    LaunchedEffect(state.isSuccess) {
-        if (state.isSuccess) {
-            onLoginSuccess()
+    LaunchedEffect(state.isSuccess, state.userType) {
+        val currentUserType = state.userType
+        if (state.isSuccess && currentUserType != null) {
+            onLoginSuccess(currentUserType)
             viewModel.resetSuccessState()
         }
     }
@@ -110,10 +105,7 @@ fun LoginScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            LoginHeader(
-                userType = userType,
-                onNavigateBack = onNavigateBack
-            )
+            LoginHeader()
 
             Box(
                 modifier = Modifier
@@ -239,7 +231,7 @@ fun LoginScreen(
                             fontSize = 14.sp,
                             modifier = Modifier
                                 .padding(bottom = 32.dp)
-                                .clickable { onNavigateToSignUp(userType) },
+                                .clickable { onNavigateToSignUp() },
                             textAlign = TextAlign.Center
                         )
                     }
@@ -251,10 +243,7 @@ fun LoginScreen(
 
 
 @Composable
-fun LoginHeader(
-    userType: UserType,
-    onNavigateBack: () -> Unit
-) {
+fun LoginHeader() {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -264,34 +253,15 @@ fun LoginHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable { onNavigateBack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = LoginWhite,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
             Text(
-                text = "${userType.name} Login",
+                text = "Login",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = LoginWhite
             )
-
-            Spacer(modifier = Modifier.weight(1f))
-            
-            Spacer(modifier = Modifier.size(48.dp))
         }
     }
 }

@@ -23,7 +23,6 @@ import com.example.registration_app.presentation.splash.SplashScreen
 import com.example.registration_app.presentation.studentprofile.StudentProfileScreen
 import com.example.registration_app.presentation.studentregistration.MajorRegistrationScreen
 import com.example.registration_app.presentation.studentregistration.StudentRegistrationRoute
-import com.example.registration_app.presentation.usertypeselection.UserTypeSelectionScreen
 import com.example.registration_app.presentation.payment.PaymentScreen
 import com.example.registration_app.presentation.registrationsuccess.RegistrationSuccessScreen
 import com.example.registration_app.presentation.paymenthistory.PaymentHistoryScreen
@@ -34,13 +33,8 @@ import kotlinx.coroutines.launch
 sealed class Screen(val route: String) {
     object Onboarding : Screen("onboarding")
     object Splash : Screen("splash")
-    object UserTypeSelection : Screen("user_type_selection")
-    object Login : Screen("login") {
-        fun createRoute(userType: String) = "login/$userType"
-    }
-    object SignUp : Screen("signup") {
-        fun createRoute(userType: String) = "signup/$userType"
-    }
+    object Login : Screen("login")
+    object SignUp : Screen("signup")
     object Home : Screen("home")
     object AdminHome : Screen("admin_home")
     object ForgotPassword : Screen("forgot_password")
@@ -106,7 +100,7 @@ fun NavGraph(
                                 popUpTo(Screen.Onboarding.route) { inclusive = true }
                             }
                         } else {
-                            navController.navigate(Screen.UserTypeSelection.route) {
+                            navController.navigate(Screen.Login.route) {
                                 popUpTo(Screen.Onboarding.route) { inclusive = true }
                             }
                         }
@@ -126,7 +120,7 @@ fun NavGraph(
                                 popUpTo(Screen.Onboarding.route) { inclusive = true }
                             }
                         } else {
-                            navController.navigate(Screen.UserTypeSelection.route) {
+                            navController.navigate(Screen.Login.route) {
                                 popUpTo(Screen.Onboarding.route) { inclusive = true }
                             }
                         }
@@ -143,91 +137,44 @@ fun NavGraph(
                     }
                 },
                 onNavigateToLogin = {
-                    navController.navigate(Screen.UserTypeSelection.route) {
+                    navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable(Screen.UserTypeSelection.route) {
-            UserTypeSelectionScreen(
-                onNavigateToAdminLogin = {
-                    navController.navigate(Screen.Login.createRoute(UserType.ADMIN.name)) {
-                        popUpTo(Screen.UserTypeSelection.route) { inclusive = false }
-                    }
-                },
-                onNavigateToStudentLogin = {
-                    navController.navigate(Screen.Login.createRoute(UserType.STUDENT.name)) {
-                        popUpTo(Screen.UserTypeSelection.route) { inclusive = false }
-                    }
-                }
-            )
-        }
-
-        composable(
-            route = "login/{userType}",
-            arguments = listOf(navArgument("userType") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val userTypeString = backStackEntry.arguments?.getString("userType") ?: ""
-            val userType = try {
-                UserType.valueOf(userTypeString)
-            } catch (e: Exception) {
-                null
-            }
-            
+        composable(Screen.Login.route) {
             LoginScreen(
-                userType = userType ?: UserType.STUDENT,
-                onNavigateToSignUp = { currentUserType ->
-                    val targetUserType = currentUserType ?: userType ?: UserType.STUDENT
-                    navController.navigate(Screen.SignUp.createRoute(targetUserType.name))
+                onNavigateToSignUp = {
+                    navController.navigate(Screen.SignUp.route)
                 },
                 onNavigateToForgotPassword = {
                     navController.navigate(Screen.ForgotPassword.route)
                 },
-                onLoginSuccess = {
-                    val targetUserType = userType ?: UserType.STUDENT
-                    val destination = if (targetUserType == UserType.ADMIN) {
+                onLoginSuccess = { userType ->
+                    // Route based on userType after login
+                    val destination = if (userType == UserType.ADMIN) {
                         Screen.AdminHome.route
                     } else {
                         Screen.Home.route
                     }
                     navController.navigate(destination) {
-                        popUpTo(Screen.UserTypeSelection.route) { inclusive = true }
+                        popUpTo(Screen.Login.route) { inclusive = true }
                     }
-                },
-                onNavigateBack = {
-                    navController.popBackStack()
                 }
             )
         }
 
-        composable(
-            route = "signup/{userType}",
-            arguments = listOf(navArgument("userType") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val userTypeString = backStackEntry.arguments?.getString("userType") ?: ""
-            val userType = try {
-                UserType.valueOf(userTypeString)
-            } catch (e: Exception) {
-                null
-            }
-            
+        composable(Screen.SignUp.route) {
             SignUpScreen(
-                userType = userType ?: UserType.STUDENT,
-                onNavigateToLogin = { currentUserType ->
-                    val targetUserType = currentUserType ?: userType ?: UserType.STUDENT
-                    navController.navigate(Screen.Login.createRoute(targetUserType.name))
+                onNavigateToLogin = {
+                    navController.navigate(Screen.Login.route)
                 },
                 onSignUpSuccess = {
-                    val targetUserType = userType ?: UserType.STUDENT
-                    val destination = if (targetUserType == UserType.ADMIN) {
-                        Screen.AdminHome.route
-                    } else {
-                        Screen.Home.route
-                    }
-                    navController.navigate(destination) {
-                        popUpTo(Screen.UserTypeSelection.route) { inclusive = true }
+                    // Always route to student home (signup is student-only)
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
                 onNavigateBack = {
@@ -239,7 +186,7 @@ fun NavGraph(
         composable(Screen.Home.route) {
             HomeScreen(
                 onSignOut = {
-                    navController.navigate(Screen.UserTypeSelection.route) {
+                    navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
                 },
@@ -258,7 +205,7 @@ fun NavGraph(
         composable(Screen.AdminHome.route) {
             AdminHomeScreen(
                 onSignOut = {
-                    navController.navigate(Screen.UserTypeSelection.route) {
+                    navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.AdminHome.route) { inclusive = true }
                     }
                 },
@@ -280,7 +227,7 @@ fun NavGraph(
                     navController.popBackStack()
                 },
                 onSignOut = {
-                    navController.navigate(Screen.UserTypeSelection.route) {
+                    navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.AdminHome.route) { inclusive = true }
                     }
                 }
@@ -317,7 +264,7 @@ fun NavGraph(
                     navController.popBackStack()
                 },
                 onSignOut = {
-                    navController.navigate(Screen.UserTypeSelection.route) {
+                    navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
                 }
@@ -423,7 +370,7 @@ fun NavGraph(
             RegistrationSuccessScreen(
                 onContinue = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.UserTypeSelection.route) { inclusive = true }
+                        popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }
             )
@@ -463,7 +410,7 @@ fun NavGraph(
             ResetPasswordScreen(
                 resetCode = resetCode,
                 onNavigateToLogin = {
-                    navController.navigate(Screen.UserTypeSelection.route) {
+                    navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.ForgotPassword.route) { inclusive = true }
                     }
                 }

@@ -81,11 +81,11 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
+        // Signup is always for STUDENT
         if (currentState.userType == null) {
             _state.value = currentState.copy(
-                errorMessage = "Please choose admin or student"
+                userType = UserType.STUDENT
             )
-            return
         }
 
         if (trimmedUsername.length < 3) {
@@ -118,7 +118,9 @@ class SignUpViewModel @Inject constructor(
                 isSuccess = false
             )
 
-            when (val result = signUpUseCase(trimmedEmail, trimmedPassword, trimmedUsername, currentState.userType!!)) {
+            // Always use STUDENT for signup
+            val userType = currentState.userType ?: UserType.STUDENT
+            when (val result = signUpUseCase(trimmedEmail, trimmedPassword, trimmedUsername, userType)) {
                 is AuthResult.Success -> {
                     _state.value = _state.value.copy(
                         isLoading = false,
